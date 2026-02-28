@@ -1,0 +1,136 @@
+---
+title: ModelManager API
+description: Manage Concerto data models with the ModelManager class
+---
+
+The `ModelManager` class from `@accordproject/concerto-core` manages Concerto models (CTO files) that define the data structure for your templates.
+
+## Installation
+
+```bash
+npm install @accordproject/concerto-core
+```
+
+## Constructor
+
+Create a new ModelManager instance with configuration options.
+
+<ParamField path="options" type="object">
+  Configuration options for the model manager
+</ParamField>
+
+<ParamField path="options.strict" type="boolean">
+  Enable strict mode for model validation (recommended: `true`)
+</ParamField>
+
+### Example
+
+```typescript
+import { ModelManager } from "@accordproject/concerto-core";
+
+const modelManager = new ModelManager({ strict: true });
+```
+
+## Methods
+
+### addCTOModel()
+
+Adds a Concerto model to the ModelManager.
+
+<ParamField path="model" type="string" required>
+  The CTO model definition as a string
+</ParamField>
+
+<ParamField path="fileName" type="string">
+  Optional file name for the model (can be `undefined`)
+</ParamField>
+
+<ParamField path="disableValidation" type="boolean">
+  Whether to disable validation when adding the model
+</ParamField>
+
+**Returns:** `void`
+
+### updateExternalModels()
+
+Fetches and updates any external model dependencies.
+
+**Returns:** `Promise<void>`
+
+This method must be called after adding models to resolve external dependencies.
+
+## Complete Example
+
+Here's how the ModelManager is used in the Template Playground:
+
+```typescript
+import { ModelManager } from "@accordproject/concerto-core";
+import { TemplateMarkInterpreter } from "@accordproject/template-engine";
+
+async function setupModels(modelCTO: string) {
+  // Create model manager with strict validation
+  const modelManager = new ModelManager({ strict: true });
+  
+  // Add the CTO model
+  modelManager.addCTOModel(modelCTO, undefined, true);
+  
+  // Update external model dependencies
+  await modelManager.updateExternalModels();
+  
+  // Use with template engine
+  const engine = new TemplateMarkInterpreter(modelManager, {});
+  
+  return { modelManager, engine };
+}
+```
+
+## Model Example
+
+A typical CTO model defines the data structure:
+
+```cto
+namespace org.acme.contract
+
+import org.accordproject.contract.Contract from https://models.accordproject.org/accordproject/contract.cto
+import org.accordproject.party.Party from https://models.accordproject.org/accordproject/party.cto
+
+asset TemplateModel extends Contract {
+  o String companyName
+  o String address
+  o DateTime effectiveDate
+  --> Party buyer
+  --> Party seller
+}
+```
+
+## Common Options
+
+<ParamField path="strict" type="boolean" default="false">
+  When `true`, enables strict validation of models and data. Recommended for production use.
+</ParamField>
+
+## Error Handling
+
+The ModelManager will throw errors if:
+- The CTO syntax is invalid
+- External model dependencies cannot be resolved
+- Model validation fails in strict mode
+
+```typescript
+try {
+  const modelManager = new ModelManager({ strict: true });
+  modelManager.addCTOModel(model, undefined, true);
+  await modelManager.updateExternalModels();
+} catch (error) {
+  console.error("Model validation failed:", error);
+}
+```
+
+## Related APIs
+
+- [TemplateMarkInterpreter](/reference/api/template-engine) - Uses ModelManager for template processing
+- [Transform](/reference/api/markdown-transform) - Works with validated data models
+
+## Source Reference
+
+See the implementation in the Template Playground: `src/store/store.ts:80-82`

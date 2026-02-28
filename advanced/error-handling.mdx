@@ -1,0 +1,593 @@
+---
+title: Error Handling and Debugging
+description: Learn how to handle errors, debug template issues, and troubleshoot common problems in the Template Playground
+---
+
+## Overview
+
+The Template Playground provides comprehensive error handling and debugging tools to help you identify and fix issues in your templates, models, and data. Understanding how errors are captured, formatted, and displayed is essential for efficient development.
+
+## Error Detection System
+
+The playground catches errors at multiple stages of the template processing pipeline.
+
+### Error Sources
+
+Errors can originate from:
+
+1. **Concerto Model Validation** - Invalid CTO syntax or model definitions
+2. **TemplateMark Parsing** - Malformed template syntax or invalid blocks
+3. **Data Binding** - Data that doesn't match the model schema
+4. **Formula Execution** - Runtime errors in TypeScript formulas
+5. **Transformation** - Issues converting between formats
+
+## Error Handling Implementation
+
+### Rebuild Error Handling
+
+The rebuild function wraps all operations in try-catch blocks.
+
+**Source Code Reference:** `src/store/store.ts:255-266`
+
+```typescript
+rebuild: async () => {
+  const { templateMarkdown, modelCto, data } = get();
+  try {
+    const result = await rebuildDeBounce(
+      templateMarkdown, 
+      modelCto, 
+      data
+    );
+    set(() => ({ 
+      agreementHtml: result, 
+      error: undefined 
+    }));
+  } catch (error: unknown) {
+    set(() => ({
+      error: formatError(error),
+      isProblemPanelVisible: true,
+    }));
+  }
+}
+```
+
+**Error Flow:**
+1. Catch any error from the transformation pipeline
+2. Format the error into a readable message
+3. Update state with formatted error
+4. Automatically open the Problem Panel
+
+### Template Update Error Handling
+
+Template changes trigger similar error handling.
+
+**Source Code Reference:** `src/store/store.ts:267-279`
+
+```typescript
+setTemplateMarkdown: async (template: string) => {
+  set(() => ({ templateMarkdown: template }));
+  const { modelCto, data } = get();
+  try {
+    const result = await rebuildDeBounce(template, modelCto, data);
+    set(() => ({ agreementHtml: result, error: undefined }));
+  } catch (error: unknown) {
+    set(() => ({
+      error: formatError(error),
+      isProblemPanelVisible: true,
+    }));
+  }
+}
+```
+
+The same pattern applies to:
+- `setModelCto` - Model updates
+- `setData` - Data updates
+
+## Error Formatting
+
+The `formatError` function converts complex error objects into readable messages.
+
+**Source Code Reference:** `src/store/store.ts:407-418`
+
+```typescript
+function formatError(error: unknown): string {
+  console.error(error);
+  if (typeof error === "string") return error;
+  if (Array.isArray(error)) {
+    return error.map((e) => formatError(e)).join("\n");
+  }
+  if (error && typeof error === "object" && "code" in error) {
+    const errorObj = error as { 
+      code?: unknown; 
+      errors?: unknown; 
+      renderedMessage?: unknown 
+    };
+    const sub = errorObj.errors ? formatError(errorObj.errors) : "";
+    const msg = String(errorObj.renderedMessage ?? "");
+    return `Error: ${String(errorObj.code ?? "")} ${sub} ${msg}`;
+  }
+  return String(error);
+}
+```
+
+**Formatting Logic:**
+1. **String errors**: Return as-is
+2. **Array errors**: Recursively format each error and join with newlines
+3. **Object errors**: Extract `code`, `errors`, and `renderedMessage` properties
+4. **Unknown types**: Convert to string
+
+### Error Message Extraction
+
+For complex nested errors (like API errors), use the `extractErrorMessage` utility.
+
+**Source Code Reference:** `src/utils/helpers/errorUtils.ts:2-89`
+
+```typescript
+export const extractErrorMessage = (error: Error | unknown): string => {
+  if (!error) return 'An unknown error occurred';
+  
+  let errorMessage = error instanceof Error 
+    ? error.message 
+    : String(error);
+  
+  // Try to extract JSON from the message
+  let jsonMatch = errorMessage.match(/\{.*\}/s);
+  if (jsonMatch) {
+    try {
+      const parsed = JSON.parse(jsonMatch[0]);
+      
+      // Handle Google error structure: {"error":{"message":"..."}}
+      if (parsed.error) {
+        if (typeof parsed.error === 'object') {
+          if (parsed.error.message) {
+            return parsed.error.message;
+          }
+        }
+        if (typeof parsed.error === 'string') {
+          return parsed.error;
+        }
+      }
+      
+      // Handle Mistral error structure: {"detail":"..."}
+      if (parsed.detail) {
+        return parsed.detail;
+      }
+      
+      // Handle direct error message
+      if (parsed.message) {
+        return parsed.message;
+      }
+    } catch {
+      // JSON parsing failed, continue
+    }
+  }
+  
+  return errorMessage;
+};
+```
+
+**Use Cases:**
+- AI Assistant API errors
+- External service errors
+- Nested error structures
+
+## Problem Panel
+
+The Problem Panel displays errors in an IDE-style interface.
+
+**Source Code Reference:** `src/components/ProblemPanel.tsx`
+
+### Error Parsing
+
+The panel parses error messages to extract structured information:
+
+```typescript
+const parseError = (errorMessage: string) => {
+  const errors: Omit<ProblemItem, 'id' | 'timestamp'>[] = [];
+  
+  // Split on error type prefixes
+  const errorParts = errorMessage.split(
+    /\n(?=Error:|TypeError:|SyntaxError:|ReferenceError:)/
+  );
+  
+  errorParts.forEach((part) => {
+    if (!part.trim()) return;
+    
+    // Extract line and column numbers
+    const lineMatch = part.match(/[Ll]ine (\d+)/);
+    const columnMatch = part.match(/[Cc]olumn? (\d+)/);
+    
+    // Determine error type
+    let type: 'error' | 'warning' | 'info' = 'error';
+    if (part.includes('Warning') || part.includes('warning')) {
+      type = 'warning';
+    } else if (part.includes('Info') || part.includes('info')) {
+      type = 'info';
+    }
+    
+    // Determine source
+    let source = 'Template Compilation';
+    if (part.includes('model') || part.includes('Model')) {
+      source = 'Concerto Model';
+    } else if (part.includes('template') || part.includes('Template')) {
+      source = 'TemplateMark';
+    } else if (part.includes('data') || part.includes('JSON')) {
+      source = 'JSON Data';
+    }
+    
+    errors.push({
+      type,
+      message: part.trim(),
+      source,
+      line: lineMatch ? parseInt(lineMatch[1]) : undefined,
+      column: columnMatch ? parseInt(columnMatch[1]) : undefined,
+    });
+  });
+  
+  return errors;
+};
+```
+
+### Problem Item Structure
+
+```typescript
+export interface ProblemItem {
+  id: string;              // Unique identifier
+  type: 'error' | 'warning' | 'info';  // Severity level
+  message: string;         // Error description
+  source?: string;         // Error source component
+  line?: number;           // Line number (if available)
+  column?: number;         // Column number (if available)
+  timestamp: Date;         // When error occurred
+}
+```
+
+### Error Display
+
+The Problem Panel automatically:
+- Opens when errors occur
+- Categorizes errors by source
+- Shows line/column information when available
+- Displays timestamp for each error
+- Provides visual distinction between error types
+
+## Common Error Patterns
+
+### Model Validation Errors
+
+**Example Error:**
+```
+Error: MISSING_REQUIRED_PROPERTY Line 1
+Property 'name' is required but not found in data
+```
+
+**Cause:** Data missing required fields from Concerto model
+
+**Solution:**
+```json
+{
+  "$class": "com.example@1.0.0.Person",
+  "name": "John Doe"  // Add missing field
+}
+```
+
+### Template Syntax Errors
+
+**Example Error:**
+```
+Error: MALFORMED_TEMPLATE Line 5
+Unclosed block tag: {{#clause}}
+```
+
+**Cause:** Mismatched block tags
+
+**Solution:**
+```markdown
+{{#clause address}}
+  {{line1}}
+{{/clause}}  <!-- Add closing tag -->
+```
+
+### Data Type Mismatches
+
+**Example Error:**
+```
+Error: TYPE_MISMATCH
+Expected Double but got String for property 'price'
+```
+
+**Cause:** JSON data types don't match Concerto model types
+
+**Solution:**
+```json
+{
+  "price": 99.99  // Use number, not "99.99"
+}
+```
+
+### Formula Runtime Errors
+
+**Example Error:**
+```
+ReferenceError: items is not defined
+```
+
+**Cause:** Formula references undefined variable
+
+**Solution:**
+```markdown
+{{#clause items condition="return items !== undefined"}}
+  {{% return items.length %}}
+{{/clause}}
+```
+
+### Missing $class Property
+
+**Example Error:**
+```
+Error: MISSING_CLASS
+Data must include $class property
+```
+
+**Cause:** JSON data missing required `$class` identifier
+
+**Solution:**
+```json
+{
+  "$class": "com.example@1.0.0.MyType",
+  // ... other properties
+}
+```
+
+## Debugging Strategies
+
+### 1. Check the Problem Panel
+
+Always start with the Problem Panel (opens automatically on errors):
+- Read the complete error message
+- Note the line and column numbers
+- Identify the error source (model, template, or data)
+
+### 2. Validate Components Individually
+
+**Test the model:**
+```concerto
+namespace test@1.0.0
+
+@template
+concept Simple {
+    o String field
+}
+```
+
+**Test the data:**
+```json
+{
+  "$class": "test@1.0.0.Simple",
+  "field": "value"
+}
+```
+
+**Test the template:**
+```markdown
+{{field}}
+```
+
+### 3. Use Console Logging
+
+Open browser DevTools (F12) to see:
+- Detailed error stack traces
+- Transformation pipeline logs
+- State updates
+
+### 4. Simplify and Rebuild
+
+- Remove complex formulas temporarily
+- Test with minimal data
+- Add features back incrementally
+
+### 5. Check Sample Templates
+
+Compare your template to working samples:
+- Use the Sample Dropdown to load examples
+- Modify samples to match your use case
+- Study how samples handle similar patterns
+
+## Error Prevention
+
+### Model-First Development
+
+1. Define your Concerto model first
+2. Validate the model compiles
+3. Create matching JSON data
+4. Build the template last
+
+### Use Type Safety
+
+**Define clear types:**
+```concerto
+concept Address {
+    o String street
+    o String city
+    o String zipCode regex=/^\d{5}$/
+}
+```
+
+**Validate data matches:**
+```json
+{
+  "street": "123 Main St",
+  "city": "Boston",
+  "zipCode": "02101"
+}
+```
+
+### Handle Optional Fields
+
+Always check optional fields before use:
+
+```markdown
+{{#optional address}}
+Address: {{line1}}, {{city}}
+{{/optional}}
+```
+
+### Validate Formula Inputs
+
+```markdown
+{{#clause items condition="return items && items.length > 0"}}
+  Count: {{% return items.length %}}
+{{/clause}}
+```
+
+## Debugging Tools
+
+### Browser DevTools
+
+**Open DevTools:** Press F12 or Cmd+Opt+I (Mac)
+
+**Console Tab:**
+- View error stack traces
+- See `formatError()` output
+- Monitor state changes
+
+**Network Tab:**
+- Check external model loads
+- Debug API calls (AI Assistant)
+
+**Application Tab:**
+- Inspect localStorage state
+- Check saved configurations
+
+### Problem Panel Features
+
+- **Error categorization**: Errors grouped by source
+- **Timestamps**: Track when errors occurred
+- **Line numbers**: Jump to problem location
+- **Auto-open**: Opens automatically on errors
+
+### State Inspection
+
+Add console logging in your workflow:
+
+```javascript
+// In browser console:
+window.__ZUSTAND_STORE__ = useAppStore.getState();
+console.log(window.__ZUSTAND_STORE__.error);
+```
+
+<Note>
+The playground automatically logs errors to the console with full stack traces for debugging.
+</Note>
+
+## Error Recovery
+
+### Automatic Recovery
+
+The playground automatically:
+- Clears errors on successful rebuild
+- Preserves valid editor content
+- Maintains undo/redo history
+
+### Manual Recovery
+
+1. **Load a working sample** to reset state
+2. **Refresh the page** to clear corrupted state
+3. **Check share links** to restore previous working state
+
+### State Persistence
+
+Errors don't persist across sessions:
+- Reload the page for a fresh start
+- Share links preserve content, not error state
+- localStorage saves only valid configurations
+
+<Warning>
+If errors persist after reloading, check for:
+- Browser extensions interfering with the app
+- Cached corrupted state in DevTools
+- Network issues preventing external model loads
+</Warning>
+
+## Advanced Error Handling
+
+### Custom Error Boundaries
+
+The app uses React error boundaries to catch rendering errors:
+
+```typescript
+try {
+  await init();
+} catch (error) {
+  console.error("Initialization error:", error);
+}
+```
+
+### Async Error Handling
+
+All async operations use proper error handling:
+
+```typescript
+try {
+  const result = await rebuildDeBounce(template, model, data);
+  set(() => ({ agreementHtml: result, error: undefined }));
+} catch (error: unknown) {
+  set(() => ({
+    error: formatError(error),
+    isProblemPanelVisible: true,
+  }));
+}
+```
+
+### Share Link Error Handling
+
+Invalid share links show helpful error messages:
+
+**Source Code Reference:** `src/store/store.ts:329-352`
+
+```typescript
+loadFromLink: async (compressedData: string) => {
+  try {
+    const { templateMarkdown, modelCto, data, agreementHtml } = 
+      decompress(compressedData);
+    if (!templateMarkdown || !modelCto || !data) {
+      throw new Error("Invalid share link data");
+    }
+    set(() => ({
+      templateMarkdown,
+      editorValue: templateMarkdown,
+      modelCto,
+      editorModelCto: modelCto,
+      data,
+      editorAgreementData: data,
+      agreementHtml,
+      error: undefined,
+    }));
+    await get().rebuild();
+  } catch (error) {
+    set(() => ({
+      error: "Failed to load shared content: " + 
+        (error instanceof Error ? error.message : "Unknown error"),
+      isProblemPanelVisible: true,
+    }));
+  }
+}
+```
+
+## Best Practices
+
+1. **Test incrementally**: Validate each component before combining
+2. **Read error messages carefully**: They often contain the exact solution
+3. **Use the Problem Panel**: Don't ignore or dismiss errors
+4. **Check line numbers**: Navigate directly to problem locations
+5. **Simplify when stuck**: Remove complexity until it works
+6. **Compare with samples**: Learn from working examples
+7. **Check browser console**: Additional details are logged there
+8. **Keep DevTools open**: Monitor real-time errors during development
+
+## Next Steps
+
+- Understand the [Markdown Transform](/advanced/markdown-transform) pipeline
+- Learn about [Custom Logic](/advanced/custom-logic) error handling
+- Explore the [Template Engine API](/reference/api/template-engine) for error details
+- Review [Sample Templates](/reference/samples/overview) for working examples

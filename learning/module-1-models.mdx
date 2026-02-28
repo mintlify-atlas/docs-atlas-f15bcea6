@@ -1,0 +1,133 @@
+---
+title: 'Module 1: Concerto models'
+description: Create a Concerto model to define the data structure for your template
+---
+
+In this module, you'll create a Concerto model that defines the data structure for your template. The model acts as a schema that specifies what data your template expects and how it should be structured.
+
+<Info>
+  Learn more about the Concerto modeling language and its runtime at [concerto.accordproject.org](https://concerto.accordproject.org/)
+</Info>
+
+## What you'll build
+
+You'll create a simple `HelloWorld` concept with a `name` property. This model will serve as the foundation for your template in the following modules.
+
+## Creating your first model
+
+Follow these steps in the Concerto Model editor to build your data model:
+
+<Steps>
+  <Step title="Define the model namespace">
+    Open the Concerto Model editor and define the [model namespace](https://concerto.accordproject.org/docs/design/specification/model-namespaces). The namespace provides a unique identifier for your model.
+
+    ```concerto
+    namespace hello@1.0.0
+    ```
+
+    The namespace follows the format `name@version`, which helps organize and version your models.
+  </Step>
+
+  <Step title="Create a concept">
+    Define a new [concept](https://concerto.accordproject.org/docs/design/specification/model-classes) called `HelloWorld`. Concepts are the building blocks of Concerto models and represent data structures.
+
+    ```concerto
+    namespace hello@1.0.0
+    
+    concept HelloWorld {
+    }
+    ```
+  </Step>
+
+  <Step title="Add the template decorator">
+    Add the `@template` [decorator](https://concerto.accordproject.org/docs/design/specification/model-decorators) to the concept. This decorator marks the concept as a template data model.
+
+    ```concerto
+    namespace hello@1.0.0
+    
+    @template
+    concept HelloWorld {
+    }
+    ```
+
+    Decorators provide metadata about your model elements and enable special behaviors.
+  </Step>
+
+  <Step title="Add a string property">
+    Add a [string property](https://concerto.accordproject.org/docs/design/specification/model-properties) called `name` to store the name value.
+
+    ```concerto
+    namespace hello@1.0.0
+    
+    @template
+    concept HelloWorld {
+        o String name
+    }
+    ```
+
+    The `o` prefix indicates this is an optional property. You can also use `-->` for relationships or add modifiers like `[]` for arrays.
+  </Step>
+</Steps>
+
+## Complete example
+
+Here's the complete model you've created:
+
+```concerto
+namespace hello@1.0.0
+
+@template
+concept HelloWorld {
+    o String name
+}
+```
+
+## Understanding the model
+
+Your model now defines:
+
+- **Namespace**: `hello@1.0.0` - uniquely identifies this model
+- **Concept**: `HelloWorld` - the data structure for your template
+- **Decorator**: `@template` - marks this as a template model
+- **Property**: `name` of type `String` - the data field that will be used in your template
+
+## Real-world example
+
+Here's a more complex example from a product announcement template:
+
+```concerto
+namespace hello@1.0.0
+
+@template
+concept ProductAnnouncement {
+    o String productName
+    o String description
+    o DateTime releaseDate
+}
+```
+
+This model includes multiple properties with different types, demonstrating how you can create more sophisticated data structures.
+
+## Next steps
+
+Now that you've defined your data model, proceed to [Module 2: TemplateMark templates](/learning/module-2-templates) to create a template that uses this model.
+
+## Key concepts
+
+<AccordionGroup>
+  <Accordion title="What is a namespace?">
+    A namespace provides a unique identifier for your model and helps prevent naming conflicts. It follows semantic versioning (e.g., `hello@1.0.0`) so you can evolve your models over time.
+  </Accordion>
+
+  <Accordion title="What are concepts?">
+    Concepts are classes that define data structures in Concerto. They can contain properties, relationships to other concepts, and decorators that add metadata.
+  </Accordion>
+
+  <Accordion title="What are decorators?">
+    Decorators are annotations that provide metadata about model elements. The `@template` decorator indicates that this concept represents template data, enabling special handling by the template engine.
+  </Accordion>
+
+  <Accordion title="What property types are available?">
+    Concerto supports various property types including `String`, `Integer`, `Double`, `Boolean`, `DateTime`, and custom concepts. You can also create arrays and optional fields.
+  </Accordion>
+</AccordionGroup>

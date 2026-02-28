@@ -1,0 +1,204 @@
+---
+title: Transform API
+description: Convert CiceroMark documents to various output formats using the transform function
+---
+
+The `transform` function from `@accordproject/markdown-transform` converts CiceroMark documents to different output formats including HTML, PDF, DOCX, and more.
+
+## Installation
+
+```bash
+npm install @accordproject/markdown-transform
+```
+
+## Function Signature
+
+```typescript
+transform(
+  source: unknown,
+  sourceFormat: string,
+  targetFormats: string[],
+  parameters?: object,
+  options?: object
+): Promise<string | object>
+```
+
+## Parameters
+
+<ParamField path="source" type="unknown" required>
+  The source document to transform (typically CiceroMark JSON)
+</ParamField>
+
+<ParamField path="sourceFormat" type="string" required>
+  The format of the source document. Common values:
+  - `"ciceromark_parsed"` - Parsed CiceroMark JSON
+  - `"markdown"` - Markdown text
+  - `"html"` - HTML string
+</ParamField>
+
+<ParamField path="targetFormats" type="string[]" required>
+  Array of target format(s) to generate. Supported formats:
+  - `"html"` - HTML output
+  - `"pdf"` - PDF document
+  - `"docx"` - Microsoft Word document
+  - `"markdown"` - Markdown text
+  - `"plaintext"` - Plain text
+</ParamField>
+
+<ParamField path="parameters" type="object">
+  Optional transformation parameters (format-specific options)
+</ParamField>
+
+<ParamField path="options" type="object">
+  Transformation options
+</ParamField>
+
+<ParamField path="options.verbose" type="boolean" default="false">
+  Enable verbose logging during transformation
+</ParamField>
+
+## Return Value
+
+Returns a `Promise` that resolves to:
+- `string` when transforming to a single text format (HTML, markdown, plaintext)
+- `object` when transforming to binary formats or multiple formats
+
+## Example Usage
+
+Here's the complete example from the Template Playground showing the transformation pipeline:
+
+```typescript
+import { transform } from "@accordproject/markdown-transform";
+import { ModelManager } from "@accordproject/concerto-core";
+import { TemplateMarkInterpreter } from "@accordproject/template-engine";
+import { TemplateMarkTransformer } from "@accordproject/markdown-template";
+
+async function rebuild(template: string, model: string, dataString: string): Promise<string> {
+  // Set up model and engine
+  const modelManager = new ModelManager({ strict: true });
+  modelManager.addCTOModel(model, undefined, true);
+  await modelManager.updateExternalModels();
+  const engine = new TemplateMarkInterpreter(modelManager, {});
+  
+  // Transform template to TemplateMark DOM
+  const templateMarkTransformer = new TemplateMarkTransformer();
+  const templateMarkDom = templateMarkTransformer.fromMarkdownTemplate(
+    { content: template },
+    modelManager,
+    "contract",
+    { verbose: false }
+  );
+  
+  // Generate CiceroMark
+  const data = JSON.parse(dataString);
+  const ciceroMark = await engine.generate(templateMarkDom, data);
+  const ciceroMarkJson = ciceroMark.toJSON();
+  
+  // Transform CiceroMark to HTML
+  const result = await transform(
+    ciceroMarkJson,
+    "ciceromark_parsed",
+    ["html"],
+    {},
+    { verbose: false }
+  );
+  
+  return result as string;
+}
+```
+
+## Transform to Multiple Formats
+
+You can generate multiple output formats in a single transform call:
+
+```typescript
+const outputs = await transform(
+  ciceroMarkJson,
+  "ciceromark_parsed",
+  ["html", "markdown", "plaintext"],
+  {},
+  { verbose: true }
+);
+```
+
+## Common Use Cases
+
+### CiceroMark to HTML
+
+```typescript
+const html = await transform(
+  ciceroMarkJson,
+  "ciceromark_parsed",
+  ["html"],
+  {},
+  { verbose: false }
+);
+```
+
+### CiceroMark to PDF
+
+```typescript
+const pdf = await transform(
+  ciceroMarkJson,
+  "ciceromark_parsed",
+  ["pdf"],
+  { 
+    headerText: "Confidential",
+    footerText: "Page {{pageNumber}} of {{totalPages}}"
+  },
+  { verbose: false }
+);
+```
+
+### Markdown to HTML
+
+```typescript
+const html = await transform(
+  markdownText,
+  "markdown",
+  ["html"],
+  {},
+  { verbose: false }
+);
+```
+
+## Supported Formats
+
+### Source Formats
+- `ciceromark_parsed` - CiceroMark JSON from template engine
+- `markdown` - Standard markdown text
+- `html` - HTML string
+- `commonmark` - CommonMark format
+
+### Target Formats
+- `html` - HTML5 output
+- `pdf` - PDF document
+- `docx` - Microsoft Word document
+- `markdown` - Markdown text
+- `plaintext` - Plain text without formatting
+- `ciceromark` - CiceroMark JSON
+
+## Error Handling
+
+```typescript
+try {
+  const result = await transform(
+    ciceroMarkJson,
+    "ciceromark_parsed",
+    ["html"],
+    {},
+    { verbose: false }
+  );
+} catch (error) {
+  console.error("Transformation failed:", error);
+}
+```
+
+## Related APIs
+
+- [TemplateMarkInterpreter](/reference/api/template-engine) - Generates CiceroMark for transformation
+- [ModelManager](/reference/api/concerto-core) - Validates data structure before transformation
+
+## Source Reference
+
+See the implementation in the Template Playground: `src/store/store.ts:100-107`

@@ -1,0 +1,301 @@
+---
+title: "AI assistant"
+description: "Use AI to help create, explain, and improve your templates"
+---
+
+The Template Playground includes an AI assistant that can help you create templates, explain code, and answer questions about Accord Project.
+
+## Set up the AI assistant
+
+Before using the AI assistant, you need to configure it with your preferred AI provider.
+
+<Steps>
+  <Step title="Open AI configuration">
+    Click the **AI settings icon** (⚙️) in the top-right corner of the AI Assistant panel, or open it from the sidebar.
+  </Step>
+  
+  <Step title="Choose a provider">
+    Select from the available AI providers:
+    - **OpenAI** (GPT models)
+    - **Anthropic** (Claude models)
+    - **Google** (Gemini models)
+    - **Mistral** (Mistral models)
+    - **OpenRouter** (Multiple models)
+    - **Ollama** (Local models)
+    - **OpenAI Compatible API** (Custom endpoints)
+  </Step>
+  
+  <Step title="Enter model name">
+    Type the specific model you want to use:
+    - OpenAI: `gpt-5`, `gpt-5-mini`
+    - Anthropic: `claude-opus-4-1-20250805`, `claude-sonnet-4-5-20250929`
+    - Google: `gemini-3-pro`, `gemini-2.5-flash`
+    - Mistral: `mistral-large-latest`
+    - OpenRouter: `openai/gpt-5`, `meta-llama/llama-3.3-70b-instruct`
+  </Step>
+  
+  <Step title="Add API key">
+    Enter your API key for the selected provider. This is stored locally in your browser.
+    
+    <Note>
+    For Ollama (local), you don't need an API key, but you must run:
+    ```bash
+    OLLAMA_ORIGINS="*" ollama serve
+    ```
+    </Note>
+  </Step>
+  
+  <Step title="Save configuration">
+    Click **Save Configuration** to store your settings.
+  </Step>
+</Steps>
+
+## Open the AI assistant
+
+Once configured, you can open the AI assistant:
+
+- Click the **AI chat icon** in the sidebar
+- The AI Assistant panel opens on the right side
+- The panel includes a chat interface with message history
+
+## Ask questions
+
+You can ask the AI assistant general questions about Accord Project, TemplateMark, and Concerto:
+
+<AccordionGroup>
+  <Accordion title="General questions">
+    ```
+    What is TemplateMark?
+    How do I define optional fields in Concerto?
+    What's the difference between olist and ulist?
+    ```
+  </Accordion>
+
+  <Accordion title="Syntax questions">
+    ```
+    How do I create a conditional clause?
+    What's the syntax for accessing nested properties?
+    How do I format dates in templates?
+    ```
+  </Accordion>
+
+  <Accordion title="Debugging help">
+    ```
+    Why isn't my template rendering?
+    I'm getting a validation error. What does it mean?
+    How do I fix this syntax error in my Concerto model?
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Use context from your editors
+
+The AI assistant can access content from your editors to provide contextual help:
+
+### Select editor context
+
+At the bottom of the AI chat input, you'll see three context buttons:
+
+- **TemplateMark**: Include your template content
+- **Concerto**: Include your data model
+- **Data**: Include your JSON data
+
+Click a button to toggle it on or off. Active contexts are highlighted and used when you send messages.
+
+<Tip>
+Enable relevant contexts to get more specific help. For example, enable TemplateMark and Concerto when asking about template syntax.
+</Tip>
+
+## Use specialized prompts
+
+The AI assistant includes preset prompts for common tasks:
+
+### Text to TemplateMark
+
+Convert plain text into a TemplateMark template:
+
+<Steps>
+  <Step title="Select the prompt">
+    Click the **up arrow** (^) button next to the send button and select **Text to TemplateMark**.
+  </Step>
+  
+  <Step title="Paste your text">
+    Enter the plain text of an agreement:
+    ```
+    This agreement is between Acme Corp and John Smith. 
+    The project will be completed by December 31, 2024. 
+    The total fee is $5,000.
+    ```
+  </Step>
+  
+  <Step title="Send and apply">
+    The AI generates a TemplateMark template with variables extracted from your text.
+  </Step>
+</Steps>
+
+### Create Concerto Model
+
+Generate a Concerto data model based on a description:
+
+<Steps>
+  <Step title="Select the prompt">
+    Click the **up arrow** button and select **Create Concerto Model**.
+  </Step>
+  
+  <Step title="Describe your agreement">
+    Explain the type of agreement and data fields you need:
+    ```
+    Create a model for a rental agreement with landlord name, 
+    tenant name, property address, monthly rent, and lease start/end dates.
+    ```
+  </Step>
+  
+  <Step title="Review and apply">
+    The AI generates a complete Concerto model with appropriate field types.
+  </Step>
+</Steps>
+
+## Explain selected code
+
+You can ask the AI to explain specific parts of your template:
+
+<Steps>
+  <Step title="Enable code selection menu">
+    Make sure **Enable Code Selection Menu** is checked in AI settings (it's on by default).
+  </Step>
+  
+  <Step title="Select code">
+    In any editor, highlight the code you want explained.
+  </Step>
+  
+  <Step title="Click Explain">
+    A menu appears near your selection. Click **Explain** to open the AI assistant with your selection.
+  </Step>
+  
+  <Step title="View explanation">
+    The AI provides a detailed explanation of what the code does.
+  </Step>
+</Steps>
+
+## Get inline suggestions
+
+The AI can provide ghost text suggestions as you type:
+
+<Steps>
+  <Step title="Enable inline suggestions">
+    In AI settings, check **Enable Inline AI Suggestions** (enabled by default).
+  </Step>
+  
+  <Step title="Start typing">
+    As you type in any editor, the AI suggests completions based on context.
+  </Step>
+  
+  <Step title="Accept suggestions">
+    Press **Tab** to accept the suggestion, or keep typing to ignore it.
+  </Step>
+</Steps>
+
+<Note>
+Inline suggestions work best with fast AI models. Slower models may cause noticeable delays.
+</Note>
+
+## Apply AI-generated code
+
+When the AI generates code in its responses, it can automatically apply it to your editors:
+
+- Look for code blocks with **Apply** buttons
+- Click **Apply** next to a code block
+- The code is inserted into the corresponding editor (Concerto, TemplateMark, or JSON)
+
+<Tip>
+The AI uses special language tags like `concertoApply`, `templatemarkApply`, and `jsonApply` to indicate which editor should receive the code.
+</Tip>
+
+## Advanced settings
+
+Click **Advanced Settings** in the AI configuration dialog for additional options:
+
+### Max Tokens
+Set the maximum number of tokens the AI can generate in responses. Higher values allow longer responses but may be slower.
+
+### Show Full Prompts in Chat History
+When enabled, the chat history shows the complete prompt sent to the AI, including system messages and context. This is useful for debugging or understanding how the AI processes your requests.
+
+### Enable Code Selection Menu
+Toggle the "Explain" menu that appears when you select code in editors.
+
+### Enable Inline AI Suggestions
+Toggle ghost text suggestions as you type.
+
+## Manage your conversation
+
+### Reset chat
+Click the **reset icon** (↻) in the AI Assistant header to clear the conversation history and start fresh.
+
+### Stop generation
+If the AI is generating a long response, click **Stop** to halt it mid-stream.
+
+### Close the panel
+Click the **X** button to close the AI Assistant panel. Your conversation history is preserved until you reset it.
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Be specific">
+    Provide clear, detailed questions:
+    - ❌ "My template doesn't work"
+    - ✅ "My template shows an error when I try to iterate through a list using `#olist`. What's the correct syntax?"
+  </Accordion>
+
+  <Accordion title="Use context wisely">
+    Enable editor context when asking about your specific template, but disable it for general questions to save tokens and get faster responses.
+  </Accordion>
+
+  <Accordion title="Iterate and refine">
+    If the AI's first response isn't perfect:
+    - Ask follow-up questions
+    - Request modifications
+    - Ask for explanations of specific parts
+  </Accordion>
+
+  <Accordion title="Verify generated code">
+    Always review AI-generated code before applying it:
+    - Check that field names match your model
+    - Verify the syntax is correct
+    - Test in the preview before using in production
+  </Accordion>
+</AccordionGroup>
+
+## Privacy and security
+
+<Warning>
+Your API keys and template content are sent to the AI provider you select. Be cautious about:
+- Using sensitive or confidential data in templates when AI is enabled
+- Sharing API keys or configuration
+- Understanding your AI provider's data policies
+</Warning>
+
+- API keys are stored locally in your browser (localStorage)
+- Template content is only sent when you have editor context enabled
+- No data is sent to Accord Project servers
+
+## Reset AI configuration
+
+To completely reset your AI settings:
+
+1. Open AI Configuration
+2. Click **Reset Configuration** at the bottom
+3. Confirm the reset
+4. All settings, API keys, and preferences are cleared
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Creating templates" icon="pen" href="/guides/creating-templates">
+    Learn template creation fundamentals
+  </Card>
+  
+  <Card title="Exporting documents" icon="download" href="/guides/exporting-documents">
+    Export your templates as PDF or HTML
+  </Card>
+</CardGroup>

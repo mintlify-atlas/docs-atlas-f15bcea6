@@ -1,0 +1,155 @@
+---
+title: "Using samples"
+description: "Work with pre-built sample templates to learn and get started quickly"
+---
+
+The Template Playground includes several sample templates that demonstrate different features and use cases. You can load these samples to learn from working examples.
+
+## Load a sample template
+
+<Steps>
+  <Step title="Open the sample dropdown">
+    In the Concerto Model editor header, click the **Load Sample** button.
+  </Step>
+  
+  <Step title="Select a sample">
+    Choose a sample from the dropdown menu. The sample name will appear on the button once loaded.
+  </Step>
+  
+  <Step title="Review the loaded content">
+    The sample automatically populates all three editors:
+    - Concerto Model
+    - TemplateMark template
+    - JSON Data
+    
+    The Preview panel updates to show the rendered result.
+  </Step>
+</Steps>
+
+<Tip>
+Loading a sample will replace any existing content in all three editors. Make sure to save your work before loading a new sample.
+</Tip>
+
+## Available samples
+
+The playground includes the following sample templates:
+
+### Playground
+A demonstration template showcasing various TemplateMark features and syntax.
+
+### Hello world
+The simplest possible template - perfect for understanding the basics of how Concerto models, TemplateMark, and JSON data work together.
+
+### Employment offer
+A complete employment offer letter template with multiple data fields including employee information, compensation, and start date.
+
+### NDA (Non-Disclosure Agreement)
+A non-disclosure agreement template demonstrating how to structure legal clauses and conditions.
+
+### Formula
+Shows how to use formulas and calculations within templates.
+
+### Formula now
+Demonstrates time-based formulas using the current date.
+
+### Join
+Illustrates how to join multiple text values together.
+
+### Clause
+Demonstrates working with clause blocks to structure complex agreements.
+
+### Clause condition
+Shows conditional logic within clause blocks.
+
+### Invitation
+A simple invitation letter template.
+
+### Announcement
+An announcement template with formatted content.
+
+### List
+Demonstrates how to work with lists and iterate through items.
+
+### Optional
+Shows how to handle optional fields in your data model.
+
+### Markdown
+Demonstrates Markdown formatting capabilities within TemplateMark.
+
+### Payment receipt
+A payment receipt template with transaction details.
+
+### Blank
+An empty starting point for creating your own template from scratch.
+
+## Learn from samples
+
+Samples are excellent learning tools. Here's how to make the most of them:
+
+<AccordionGroup>
+  <Accordion title="Study the Concerto model">
+    Examine how the data structure is defined:
+    - Look at the field types (String, Double, DateTime, etc.)
+    - Notice which concept has the `@template` decorator
+    - See how optional fields are marked with `o` prefix
+  </Accordion>
+
+  <Accordion title="Analyze the TemplateMark">
+    See how the template uses data fields:
+    - Variable interpolation with `{{fieldName}}`
+    - Clause blocks with `{{#clause}}...{{/clause}}`
+    - Lists with `{{#olist}}` or `{{#ulist}}`
+    - Conditional blocks
+  </Accordion>
+
+  <Accordion title="Review the JSON data">
+    Understand how data is structured:
+    - The `$class` property always matches the Concerto concept
+    - Data values match the field types defined in the model
+    - Nested objects correspond to complex types
+  </Accordion>
+
+  <Accordion title="Modify and experiment">
+    Make changes to learn interactively:
+    - Add new fields to the Concerto model
+    - Update the TemplateMark to use them
+    - Add corresponding data in the JSON
+    - See the preview update in real-time
+  </Accordion>
+</AccordionGroup>
+
+## Modify a sample
+
+Once you've loaded a sample, you can modify it to suit your needs:
+
+1. Edit any of the three editors (Concerto Model, TemplateMark, or JSON Data)
+2. The preview updates automatically as you make changes
+3. Use the sample as a starting point for your own template
+
+<Note>
+Sample modifications are not saved permanently. Reloading the same sample will restore the original content.
+</Note>
+
+## Switch between samples
+
+You can quickly switch between samples to compare different approaches:
+
+1. Click **Load Sample** again
+2. Select a different sample
+3. The new sample immediately replaces the current content
+
+<Warning>
+Switching samples will discard any unsaved changes to the current template.
+</Warning>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Creating templates" icon="pen" href="/guides/creating-templates">
+    Learn to create your own templates from scratch
+  </Card>
+  
+  <Card title="Sharing templates" icon="share" href="/guides/sharing-templates">
+    Share your templates with others
+  </Card>
+</CardGroup>

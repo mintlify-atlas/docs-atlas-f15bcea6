@@ -1,0 +1,123 @@
+---
+title: Sample Templates Overview
+description: Explore ready-to-use sample templates demonstrating TemplateMark features
+---
+
+Sample templates provide working examples that demonstrate how to use TemplateMark features in real-world scenarios. Each sample includes a complete MODEL, TEMPLATE, and DATA structure that you can use as a starting point for your own templates.
+
+## Available Samples
+
+The following samples are available to help you get started:
+
+### Basic Samples
+
+<CardGroup cols={2}>
+  <Card title="Hello World" icon="hand-wave" href="/reference/samples/hello-world">
+    A simple introduction to TemplateMark with basic variable substitution
+  </Card>
+  <Card title="Formula" icon="calculator">
+    Demonstrates inline TypeScript formulas for dynamic calculations
+  </Card>
+</CardGroup>
+
+### Business Document Samples
+
+<CardGroup cols={2}>
+  <Card title="Employment Offer" icon="file-contract" href="/reference/samples/employment-offer">
+    Professional employment offer letter with salary, dates, and optional probation period
+  </Card>
+  <Card title="NDA" icon="file-signature" href="/reference/samples/nda">
+    Non-Disclosure Agreement template with parties, purpose, and duration
+  </Card>
+</CardGroup>
+
+### Advanced Samples
+
+<CardGroup cols={2}>
+  <Card title="Customer Order" icon="shopping-cart">
+    Complex sample demonstrating clauses, lists, joins, formulas, and date handling
+  </Card>
+  <Card title="Invitation" icon="envelope">
+    Event invitation with date formatting and nested address structure
+  </Card>
+</CardGroup>
+
+## Sample Structure
+
+Each sample template consists of three main components:
+
+### 1. MODEL
+
+The model defines the data structure using Concerto modeling language. It specifies:
+- Namespace and version
+- Concept definitions with properties
+- Data types and constraints
+- Optional fields
+- The `@template` decorator on the main concept
+
+### 2. TEMPLATE
+
+The template contains:
+- Markdown-formatted content
+- Variable placeholders using `{{variable}}` syntax
+- Formatting expressions like `{{date as "DD MMMM YYYY"}}`
+- Conditional blocks with `{{#if}}`
+- Clauses with `{{#clause}}`
+- Formulas with `{{% return expression %}}`
+
+### 3. DATA
+
+The data object provides:
+- A `$class` property specifying the fully-qualified type
+- Values for all required properties
+- Optional values for optional properties
+- Nested objects for complex types
+
+## Using Samples
+
+To use a sample template:
+
+1. **Copy the model** - Define your data structure
+2. **Customize the template** - Modify the markdown and variable placeholders
+3. **Provide your data** - Create a data object matching your model
+4. **Generate output** - Use the TemplateMark engine to render the template
+
+```typescript
+import { TemplateMarkTransformer } from '@accordproject/markdown-template';
+
+const transformer = new TemplateMarkTransformer();
+const result = await transformer.generate({
+  model: MODEL,
+  template: TEMPLATE,
+  data: DATA
+});
+```
+
+## Common Patterns
+
+Across these samples, you'll see common patterns:
+
+- **Date Formatting**: `{{effectiveDate as "DD MMMM YYYY"}}`
+- **Number Formatting**: `{{doubleValue as "0,0"}}`
+- **Conditional Sections**: `{{#if probation}}...{{/if}}`
+- **Clauses**: `{{#clause address}}...{{/clause}}`
+- **Formulas**: `{{% return name.length %}}`
+- **Lists**: `{{#ulist items}}...{{/ulist}}`
+- **Joins**: `{{#join favoriteColors}}`
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Hello World Sample" icon="rocket" href="/reference/samples/hello-world">
+    Start with the simplest example
+  </Card>
+  <Card title="Template Syntax" icon="code" href="/guide/syntax">
+    Learn the complete template syntax
+  </Card>
+  <Card title="Data Modeling" icon="diagram-project" href="/guide/models">
+    Understand Concerto data models
+  </Card>
+  <Card title="API Reference" icon="book" href="/reference/api">
+    Explore the API documentation
+  </Card>
+</CardGroup>

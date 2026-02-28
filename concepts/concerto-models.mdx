@@ -1,0 +1,370 @@
+---
+title: Understanding Concerto models
+description: Learn how to define and use Concerto data models in your templates
+---
+
+Concerto is a lightweight schema language for defining data models. In the Template Playground, Concerto models define the structure of data that can be used in your TemplateMark templates.
+
+## What is Concerto?
+
+Concerto provides a type-safe way to model business data. It's similar to TypeScript interfaces or JSON Schema, but designed specifically for business and legal use cases. Every template in the playground must have a corresponding Concerto model.
+
+<Info>
+Concerto models are defined in `.cto` files and use a syntax that's easy to read and write, even if you're not a developer.
+</Info>
+
+## Basic model structure
+
+Every Concerto model starts with a namespace declaration:
+
+```concerto
+namespace hello@1.0.0
+
+@template
+concept HelloWorld {
+    o String name
+}
+```
+
+Let's break this down:
+- `namespace hello@1.0.0` - Defines a unique identifier and version for your model
+- `@template` - Annotation marking this as the root template concept
+- `concept HelloWorld` - Defines a data structure named HelloWorld
+- `o String name` - Declares a required string property called "name"
+
+<Note>
+The `@template` annotation is required on the root concept that your template will use.
+</Note>
+
+## Property types
+
+Concerto supports various property types:
+
+### Primitive types
+
+```concerto
+concept Example {
+    o String text
+    o Integer count
+    o Double amount
+    o Boolean isActive
+    o DateTime timestamp
+}
+```
+
+### Arrays
+
+Use `[]` to denote array types:
+
+```concerto
+concept Person {
+    o String[] middleNames
+    o String[] favoriteColors
+}
+```
+
+### Optional properties
+
+Add the `optional` keyword:
+
+```concerto
+concept TemplateData {
+    o String name
+    o Integer age optional
+    o LoyaltyStatus loyaltyStatus optional
+}
+```
+
+## Nested concepts
+
+You can compose complex models by nesting concepts:
+
+```concerto
+namespace hello@1.0.0
+
+concept Address {
+    o String line1
+    o String city
+    o String state
+    o String country
+}
+
+@template
+concept Customer {
+    o Address address
+}
+```
+
+This creates a nested structure where `Customer` contains an `Address` object.
+
+## Real-world example: Employment offer
+
+Here's a complete model for an employment offer letter:
+
+```concerto
+namespace org.accordproject.employment@1.0.0
+
+/**
+ * Represents a monetary value with currency
+ */
+concept MonetaryAmount {
+  o Double doubleValue
+  o String currencyCode
+}
+
+/**
+ * Optional probation details
+ */
+concept Probation {
+  o Integer months
+}
+
+/**
+ * Main template model for the employment offer
+ */
+@template
+concept EmploymentOffer {
+  o String candidateName
+  o String companyName
+  o String roleTitle
+  o MonetaryAmount annualSalary
+  o DateTime startDate
+  o Probation probation optional
+}
+```
+
+This model defines:
+- A `MonetaryAmount` concept for representing salary
+- A `Probation` concept for probation period details
+- The main `EmploymentOffer` template with required and optional fields
+
+<Tip>
+Use documentation comments (`/** */`) to describe your concepts and properties. This helps other developers understand your model.
+</Tip>
+
+## Enumerations
+
+Define a fixed set of values using enums:
+
+```concerto
+namespace com.acme.insurance.auto@1.0.0
+
+enum ItemType {
+    o ACCESSORIES
+    o SPARE_PARTS
+    o CAR
+}
+
+@template
+concept Insurance {
+    o ItemType[] items
+}
+```
+
+## Importing external models
+
+You can import concepts from other namespaces:
+
+```concerto
+namespace hello@1.0.0
+
+import org.accordproject.money@0.3.0.{MonetaryAmount} from https://models.accordproject.org/money@0.3.0.cto
+
+@template
+concept TemplateData {
+    o String name
+    o MonetaryAmount salary
+}
+```
+
+This imports the `MonetaryAmount` concept from the Accord Project's model repository.
+
+<Warning>
+When importing external models, the ModelManager automatically fetches them. Ensure you have network access when using imports.
+</Warning>
+
+## Complex example: Order system
+
+Here's a sophisticated model with multiple nested concepts and arrays:
+
+```concerto
+namespace hello@1.0.0
+import org.accordproject.money@0.3.0.{MonetaryAmount} from https://models.accordproject.org/money@0.3.0.cto
+
+concept Address {
+    o String line1
+    o String city
+    o String state
+    o String country
+}
+
+concept OrderLine {
+    o String sku
+    o Integer quantity
+    o Double price
+}
+
+concept Order {
+    o DateTime createdAt
+    o OrderLine[] orderLines
+}
+
+@template
+concept TemplateData {
+    o String name
+    o Address address
+    o Integer age optional
+    o MonetaryAmount salary
+    o String[] favoriteColors
+    o Order order
+}
+```
+
+This model demonstrates:
+- Multiple nested concepts (Address, Order, OrderLine)
+- Arrays of primitives (`String[]`) and concepts (`OrderLine[]`)
+- Optional fields
+- External imports
+
+## How models are used
+
+The ModelManager in the playground loads and validates your Concerto model:
+
+```typescript
+const modelManager = new ModelManager({ strict: true });
+modelManager.addCTOModel(model, undefined, true);
+await modelManager.updateExternalModels();
+```
+
+From `store.ts:80-82`, you can see the model is:
+1. Added to the ModelManager in strict mode
+2. Validated for syntax and semantic correctness
+3. External models are fetched and loaded
+
+## Validation
+
+When you provide data to a template, it must match the model structure:
+
+```json
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "John Doe"
+}
+```
+
+The `$class` property is required and must reference the fully qualified name of a concept in your model.
+
+<Note>
+Every JSON object must have a `$class` property that identifies its type. This enables runtime type checking and validation.
+</Note>
+
+## Common patterns
+
+### Reusable concepts
+
+Define common concepts that can be reused across multiple templates:
+
+```concerto
+concept Address {
+    o String line1
+    o String city
+    o String state
+    o String country
+}
+
+concept Person {
+    o String firstName
+    o String lastName
+    o Address address
+}
+```
+
+### Optional nested objects
+
+Combine optional with nested concepts:
+
+```concerto
+concept LoyaltyStatus {
+    o String level
+}
+
+@template
+concept TemplateData {
+    o LoyaltyStatus loyaltyStatus optional
+}
+```
+
+### Arrays of nested objects
+
+```concerto
+concept OrderLine {
+    o String sku
+    o Integer quantity
+    o Double price
+}
+
+concept Order {
+    o OrderLine[] orderLines
+}
+```
+
+## NDA example
+
+A simple but complete Non-Disclosure Agreement model:
+
+```concerto
+namespace org.accordproject.nda@0.0.2
+
+@template
+concept NDA {
+  o String disclosingParty
+  o String receivingParty
+  o String purpose
+  o DateTime effectiveDate
+  o Integer durationInMonths
+}
+```
+
+With corresponding data:
+
+```json
+{
+  "$class": "org.accordproject.nda@0.0.2.NDA",
+  "disclosingParty": "Tech Innovators Inc.",
+  "receivingParty": "John Doe",
+  "purpose": "evaluating a potential business collaboration",
+  "effectiveDate": "2025-02-01T00:00:00Z",
+  "durationInMonths": 24
+}
+```
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Use semantic naming">
+    Name your concepts and properties to reflect their business meaning, not technical implementation. Use `candidateName` instead of `name1`, `annualSalary` instead of `amount`.
+  </Accordion>
+  
+  <Accordion title="Add documentation">
+    Use comments to explain the purpose of concepts and properties, especially for complex business logic.
+  </Accordion>
+  
+  <Accordion title="Version your namespaces">
+    Always include a version number in your namespace (e.g., `@1.0.0`). This allows for model evolution over time.
+  </Accordion>
+  
+  <Accordion title="Make fields optional thoughtfully">
+    Only mark fields as optional if they truly are optional in the business context. Required fields enforce data completeness.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Data binding" icon="link" href="/concepts/data-binding">
+    Learn how your models bind to template variables
+  </Card>
+  <Card title="Template engine" icon="gear" href="/concepts/template-engine">
+    Understand how the engine processes templates and models
+  </Card>
+</CardGroup>

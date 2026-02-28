@@ -1,0 +1,148 @@
+---
+title: Welcome to Template Playground
+description: Learn how to create, test, and share Accord Project templates in an interactive web environment
+---
+
+# Welcome to Template Playground
+
+The Accord Project Template Playground is a web-based platform that empowers you to learn and experiment with Accord Project functionalities in a user-friendly and interactive environment.
+
+<Note>
+The Template Playground is deployed at [https://playground.accordproject.org](https://playground.accordproject.org)
+</Note>
+
+## What you can do
+
+Template Playground bridges the gap between static documentation and active learning by providing an interactive environment where you can:
+
+<CardGroup cols={2}>
+  <Card title="Edit templates in real-time" icon="pen-to-square">
+    Modify TemplateMark, Concerto models, and JSON data with syntax highlighting and instant feedback
+  </Card>
+  
+  <Card title="Preview rendered output" icon="eye">
+    See your templates come to life with live preview and export to PDF
+  </Card>
+  
+  <Card title="Share your work" icon="share-nodes">
+    Generate shareable links to collaborate with others or showcase your templates
+  </Card>
+  
+  <Card title="Learn by example" icon="lightbulb">
+    Explore pre-built sample templates ranging from simple greetings to complex legal documents
+  </Card>
+</CardGroup>
+
+## Core technologies
+
+The playground combines several Accord Project technologies to create powerful, dynamic templates:
+
+### TemplateMark
+
+TemplateMark is the natural language text format for defining templates. It extends Markdown with dynamic variables and logic:
+
+```markdown
+### Welcome {{name}}!
+
+Your employment with {{companyName}} will commence on {{startDate as "DD MMMM YYYY"}}.
+
+{{#if probation}}
+This offer includes a probation period of **{{probation.months}} months**.
+{{/if}}
+```
+
+### Concerto
+
+Concerto is the data modeling language that defines the structure of your template data:
+
+```concerto
+namespace org.accordproject.employment@1.0.0
+
+@template
+concept EmploymentOffer {
+  o String candidateName
+  o String companyName
+  o DateTime startDate
+  o Probation probation optional
+}
+
+concept Probation {
+  o Integer months
+}
+```
+
+### TypeScript formulas
+
+Embed TypeScript logic directly in your templates for dynamic calculations:
+
+```markdown
+Your name has {{% return name.length %}} characters.
+
+Order total: {{% return order.orderLines.map(ol => ol.price * ol.quantity).reduce((sum, cur) => sum + cur).toFixed(2); %}}
+```
+
+### Template Engine
+
+The [Template Engine](https://github.com/accordproject/template-engine) merges TemplateMark templates with JSON data to produce output documents in various formats including HTML and PDF.
+
+## Interactive features
+
+The playground provides a complete development environment for working with templates:
+
+- **Live editing**: Edit your Concerto model, TemplateMark template, and JSON data in separate panels with Monaco editor
+- **Syntax highlighting**: Full syntax support for Concerto, Markdown, and JSON
+- **Error checking**: Real-time validation with a dedicated problem panel showing errors and warnings
+- **Collapsible panels**: Focus on what matters by collapsing the model or data panels
+- **Sample templates**: Load pre-built examples including employment offers, NDAs, payment receipts, and more
+- **AI assistance**: Get help writing templates with integrated AI chat (requires API key configuration)
+- **Export options**: Download your rendered output as PDF
+- **Dark mode**: Switch between light and dark themes for comfortable editing
+
+## Example templates
+
+The playground includes several sample templates to help you get started:
+
+<CardGroup cols={2}>
+  <Card title="Hello World" icon="hand-wave">
+    A simple template demonstrating basic variable substitution
+  </Card>
+  
+  <Card title="Employment Offer Letter" icon="briefcase">
+    A real-world example with monetary amounts, dates, and optional clauses
+  </Card>
+  
+  <Card title="Customer Order" icon="cart-shopping">
+    Demonstrates lists, joins, date formatting, and TypeScript calculations
+  </Card>
+  
+  <Card title="Formula" icon="calculator">
+    Shows how to embed TypeScript formulas in templates
+  </Card>
+</CardGroup>
+
+## Getting started
+
+Ready to create your first template? Follow the [quickstart guide](/quickstart) to learn the basics.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Create your first template in minutes
+  </Card>
+  
+  <Card title="Accord Project Docs" icon="book" href="https://docs.accordproject.org">
+    Learn more about Accord Project technologies
+  </Card>
+</CardGroup>
+
+## Open source and community
+
+The Accord Project Template Playground is an open-source project under the [Linux Foundation](https://www.linuxfoundation.org). We welcome contributions from the developer community:
+
+- **Feature implementation**: Help build core functionalities
+- **Learning modules**: Create interactive tutorials
+- **Documentation**: Improve guides and examples
+- **Bug fixes**: Report issues and submit fixes
+
+<Card title="Join the community" icon="discord" href="https://discord.gg/Zm99SKhhtA">
+  Connect with other developers on Discord
+</Card>

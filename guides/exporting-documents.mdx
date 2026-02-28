@@ -1,0 +1,190 @@
+---
+title: "Exporting documents"
+description: "Export your rendered templates as PDF or HTML documents"
+---
+
+Once you've created a template and populated it with data, you can export the rendered result as a PDF document for sharing, printing, or archiving.
+
+## Export as PDF
+
+The Preview panel includes a built-in PDF export feature:
+
+<Steps>
+  <Step title="Verify your template">
+    Before exporting, check that:
+    - Your template renders correctly in the Preview panel
+    - All data is populated as expected
+    - There are no errors in the Problem Panel
+  </Step>
+  
+  <Step title="Click Download PDF">
+    In the Preview panel header, click the **Download PDF** button.
+  </Step>
+  
+  <Step title="Wait for generation">
+    The button shows a loading state while the PDF is being generated. This may take a few seconds for complex templates.
+  </Step>
+  
+  <Step title="Save the file">
+    The PDF automatically downloads to your browser's default download location with the filename `agreement.pdf`.
+  </Step>
+</Steps>
+
+## PDF export settings
+
+The PDF is generated with the following default settings:
+
+- **Format**: A4 paper size
+- **Orientation**: Portrait
+- **Margins**: 10mm on all sides
+- **Quality**: High (98% JPEG quality for images)
+- **Scale**: 2x for better text rendering
+
+These settings ensure high-quality output suitable for printing and professional use.
+
+## What's included in the PDF
+
+The exported PDF contains:
+
+- All rendered text from your template
+- Formatting (headings, bold, italic, lists)
+- Images embedded in the template
+- Styled elements based on the preview rendering
+
+<Note>
+The PDF export captures the visual rendering of your template. Interactive elements or conditional logic are not preserved - only the current rendered state.
+</Note>
+
+## View the HTML output
+
+While there's no direct HTML export button, you can access the HTML output:
+
+1. Open your browser's developer tools (F12 or right-click > Inspect)
+2. Navigate to the Preview panel content
+3. The rendered HTML is displayed in the DOM inspector
+4. Copy the HTML for use in other applications
+
+<Tip>
+The HTML output is sanitized using DOMPurify for security, so some HTML elements may be filtered out.
+</Tip>
+
+## Best practices for export
+
+<AccordionGroup>
+  <Accordion title="Preview before exporting">
+    Always review the Preview panel carefully before generating a PDF:
+    - Check formatting and spacing
+    - Verify all data fields are populated correctly
+    - Look for any rendering issues
+    - Ensure images load properly
+  </Accordion>
+
+  <Accordion title="Test with sample data">
+    Before using real data, test your template with sample data to ensure the layout works correctly with different value lengths and types.
+  </Accordion>
+
+  <Accordion title="Consider page breaks">
+    Long templates may span multiple pages. Preview how content flows across pages by checking the PDF after export.
+  </Accordion>
+
+  <Accordion title="Use appropriate styling">
+    Format your TemplateMark template with clear headings, proper spacing, and readable fonts. These will carry over to the PDF.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting PDF export
+
+### PDF generation fails
+
+If the PDF doesn't generate:
+
+1. Check the browser console for error messages
+2. Ensure your template renders without errors in the Preview panel
+3. Try with a simpler template to isolate the issue
+4. Check that your browser allows downloads
+
+### PDF looks different from preview
+
+If the PDF doesn't match the preview:
+
+- **Images**: Ensure images are loaded and accessible
+- **Fonts**: Some custom fonts may not render in PDF
+- **Colors**: Check that your color scheme is PDF-compatible
+- **Layout**: Complex CSS layouts may not translate perfectly to PDF
+
+### PDF is too large
+
+If your PDF file is very large:
+
+- Optimize images in your template
+- Reduce image quality if acceptable for your use case
+- Consider splitting very long templates into multiple documents
+
+<Warning>
+PDF generation happens in your browser using client-side JavaScript. Very large or complex templates may slow down or crash your browser tab.
+</Warning>
+
+## Alternative export options
+
+### Copy and paste
+
+For quick sharing, you can:
+
+1. Select content in the Preview panel
+2. Copy it (Ctrl+C or Cmd+C)
+3. Paste into a word processor or email
+
+### Screenshot
+
+For visual documentation:
+
+1. Use your operating system's screenshot tool
+2. Capture the Preview panel
+3. Save as an image
+
+### Share link instead
+
+Consider using the Share feature instead of exporting:
+
+- Generate a shareable link
+- Recipients can view the live, interactive template
+- No need to send large PDF files
+
+See [Sharing templates](/guides/sharing-templates) for more details.
+
+## Custom filename
+
+The PDF is always downloaded as `agreement.pdf`. To use a custom filename:
+
+1. Let the PDF download
+2. Rename the file in your file system
+3. Or check your browser's download settings to prompt for filename
+
+<Tip>
+If you're exporting multiple PDFs, rename them immediately after download to avoid overwriting previous versions.
+</Tip>
+
+## Print directly
+
+Instead of downloading a PDF, you can print directly:
+
+1. Open the Preview panel
+2. Use your browser's print function (Ctrl+P or Cmd+P)
+3. Select "Save as PDF" or send to a physical printer
+4. Adjust print settings as needed
+
+<Note>
+Direct printing gives you more control over page layout, margins, and other print-specific settings.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Sharing templates" icon="share" href="/guides/sharing-templates">
+    Share templates using shareable links
+  </Card>
+  
+  <Card title="Creating templates" icon="pen" href="/guides/creating-templates">
+    Learn to create templates from scratch
+  </Card>
+</CardGroup>

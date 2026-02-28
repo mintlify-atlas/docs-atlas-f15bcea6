@@ -1,0 +1,242 @@
+---
+title: What is TemplateMark
+description: Learn about TemplateMark, the markup language for creating dynamic legal templates
+---
+
+TemplateMark is a markup language that extends Markdown to create dynamic, data-driven legal documents. It allows you to define templates with variables, conditionals, and logic that bind to structured data models.
+
+## Overview
+
+TemplateMark combines the simplicity of Markdown with powerful templating features to generate legal agreements and contracts. When you write a template in TemplateMark, you define placeholders and logic that get replaced with actual data at runtime.
+
+<Info>
+TemplateMark is part of the Accord Project ecosystem and works seamlessly with Concerto data models and the Template Engine.
+</Info>
+
+## Basic syntax
+
+At its core, TemplateMark uses double curly braces `{{}}` to denote variables that will be replaced with data:
+
+```markdown
+Dear {{candidateName}},
+
+We are pleased to offer you the position of **{{roleTitle}}** at **{{companyName}}**.
+```
+
+When this template is processed with data, the variables are replaced:
+
+```json
+{
+  "$class": "org.accordproject.employment@1.0.0.EmploymentOffer",
+  "candidateName": "Ishan Gupta",
+  "companyName": "Tech Innovators Inc.",
+  "roleTitle": "Junior AI Engineer"
+}
+```
+
+Result:
+```
+Dear Ishan Gupta,
+
+We are pleased to offer you the position of **Junior AI Engineer** at **Tech Innovators Inc.**.
+```
+
+## Variables and formatting
+
+TemplateMark supports formatting variables using the `as` keyword:
+
+### Date formatting
+
+```markdown
+DATE: {{startDate as "DD MMMM YYYY"}}
+
+Your employment will commence on {{startDate as "DD MMMM YYYY"}}.
+```
+
+### Number formatting
+
+```markdown
+Your annual gross salary will be **{{doubleValue as "0,0"}} {{currencyCode}}**.
+```
+
+<Note>
+Formatting patterns follow standard conventions: `"0,0.00"` for numbers with thousands separators and decimals, `"DD MMMM YYYY"` for dates, etc.
+</Note>
+
+## Conditional blocks
+
+Use `{{#if}}` blocks to include content conditionally:
+
+```markdown
+{{#if probation}}
+{{#clause probation}}
+This offer includes a probation period of **{{months}} months**.
+{{/clause}}
+{{/if}}
+```
+
+This content only appears when the `probation` field exists in the data.
+
+## Clause blocks
+
+The `{{#clause}}` block is used to bind to nested objects in your data model:
+
+```markdown
+{{#clause address}}  
+#### Address
+{{line1}},  
+{{city}}, {{state}},  
+{{country}}  
+{{/clause}}
+```
+
+Inside the clause block, you have direct access to the properties of the `address` object without needing to prefix them.
+
+<Tip>
+Clause blocks are essential for working with complex nested data structures in legal templates.
+</Tip>
+
+## List operations
+
+TemplateMark provides special blocks for rendering lists:
+
+### Ordered lists
+
+```markdown
+{{#olist middleNames}}
+- {{this}}
+{{/olist}}
+```
+
+### Unordered lists
+
+```markdown
+{{#ulist orderLines}}
+- {{quantity}}x _{{sku}}_ @ £{{price as "0,0.00"}}
+{{/ulist}}
+```
+
+### Join lists
+
+Format lists with proper conjunctions:
+
+```markdown
+Your favorite colours are {{#join favoriteColors}}{{/join}}
+```
+
+With locale and style options:
+
+```markdown
+{{#join items locale="en" style="long"}}{{/join}}
+{{#join items locale="en" type="disjunction"}}{{/join}}
+```
+
+## Optional content
+
+Handle optional fields gracefully with the `{{#optional}}` block:
+
+```markdown
+{{#optional loyaltyStatus}}
+You have loyalty status.
+{{else}}
+You do not have a loyalty status.
+{{/optional}}
+```
+
+## Formulas with TypeScript
+
+Embed TypeScript expressions directly in your templates using `{{% %}}` syntax:
+
+```markdown
+Your name has {{% return name.length %}} characters.
+```
+
+### Complex calculations
+
+```markdown
+Your last order was placed {{createdAt as "D MMMM YYYY"}} 
+({{% return now.diff(order.createdAt, 'day')%}} days ago).
+
+Order total: {{% return '£' + order.orderLines.map(ol => ol.price * ol.quantity).reduce((sum, cur) => sum + cur).toFixed(2);%}}
+```
+
+<Warning>
+Formulas must return a value and should be side-effect free. They execute in a sandboxed environment for security.
+</Warning>
+
+## Complete example
+
+Here's a full employment offer template demonstrating multiple TemplateMark features:
+
+```markdown
+DATE: {{startDate as "DD MMMM YYYY"}}
+
+Dear {{candidateName}},
+
+We are pleased to offer you the position of **{{roleTitle}}** at **{{companyName}}**.
+
+Your employment with {{companyName}} will commence on {{startDate as "DD MMMM YYYY"}}.
+
+{{#clause annualSalary}}
+Your annual gross salary will be **{{doubleValue as "0,0"}} {{currencyCode}}**, payable in accordance with company policies.
+{{/clause}}
+
+{{#if probation}}
+{{#clause probation}}
+This offer includes a probation period of **{{months}} months**, during which your performance and suitability for the role will be evaluated.
+{{/clause}}
+{{/if}}
+
+We are excited about the opportunity to work with you and look forward to your contribution to the team.
+
+Sincerely,  
+**Human Resources**  
+{{companyName}}
+```
+
+## How TemplateMark works
+
+The template processing pipeline involves several steps:
+
+1. **Parse**: The TemplateMarkTransformer converts the markdown template into a TemplateMark DOM structure
+2. **Validate**: The template is validated against the Concerto model to ensure all variables exist
+3. **Generate**: The TemplateMarkInterpreter merges the template with JSON data to produce CiceroMark
+4. **Transform**: CiceroMark is transformed to the desired output format (HTML, PDF, etc.)
+
+See the template engine implementation in `store.ts:79-108`:
+
+```typescript
+const modelManager = new ModelManager({ strict: true });
+modelManager.addCTOModel(model, undefined, true);
+await modelManager.updateExternalModels();
+
+const engine = new TemplateMarkInterpreter(modelManager, {});
+const templateMarkTransformer = new TemplateMarkTransformer();
+const templateMarkDom = templateMarkTransformer.fromMarkdownTemplate(
+  { content: template },
+  modelManager,
+  "contract",
+  { verbose: false }
+);
+
+const data = JSON.parse(dataString);
+const ciceroMark = await engine.generate(templateMarkDom, data);
+const result = await transform(
+  ciceroMark.toJSON(),
+  "ciceromark_parsed",
+  ["html"],
+  {},
+  { verbose: false }
+);
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Concerto models" icon="code" href="/concepts/concerto-models">
+    Learn how to define data models for your templates
+  </Card>
+  <Card title="Data binding" icon="link" href="/concepts/data-binding">
+    Understand how data binds to template variables
+  </Card>
+</CardGroup>

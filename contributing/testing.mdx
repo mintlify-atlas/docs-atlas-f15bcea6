@@ -1,0 +1,411 @@
+---
+title: Testing Guide
+description: How to write and run tests for the Template Playground
+---
+
+## Testing Overview
+
+The Template Playground uses a comprehensive testing strategy with two main testing frameworks:
+
+- **Vitest**: Fast unit and integration tests for components and logic
+- **Playwright**: End-to-end tests for full user journeys
+
+## Running Tests
+
+### Unit Tests
+
+Run all unit tests with Vitest:
+
+```bash
+# Run all unit tests
+npm test
+# or
+npm run test:unit
+```
+
+Vitest runs in watch mode by default during development. Use `vitest run` for CI/CD environments.
+
+### End-to-End Tests
+
+Run E2E tests with Playwright:
+
+```bash
+# Run e2e tests in headless mode
+npm run test:e2e
+
+# Run e2e tests with interactive UI
+npm run test:e2e:ui
+```
+
+## Unit Testing with Vitest
+
+### Configuration
+
+Vitest is configured in `vite.config.ts`:
+
+```typescript
+{
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/utils/testing/setup.ts",
+    exclude: [...configDefaults.exclude, "**/e2e/**"],
+  }
+}
+```
+
+### Setup File
+
+The test setup (`src/utils/testing/setup.ts`) includes:
+
+- **@testing-library/jest-dom**: Custom matchers for DOM assertions
+- **jest-canvas-mock**: Mock canvas APIs
+- Global test utilities and configurations
+
+### Writing Component Tests
+
+#### Basic Component Test
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import Navbar from '../Navbar';
+
+describe('Navbar', () => {
+  it('renders the navbar component', () => {
+    render(<Navbar />);
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+  });
+
+  it('displays the Accord Project logo', () => {
+    render(<Navbar />);
+    const logo = screen.getByAltText(/accord project/i);
+    expect(logo).toBeInTheDocument();
+  });
+});
+```
+
+#### Testing User Interactions
+
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
+import SettingsModal from '../SettingsModal';
+
+describe('SettingsModal', () => {
+  it('calls onClose when close button is clicked', async () => {
+    const onClose = vi.fn();
+    render(<SettingsModal isOpen={true} onClose={onClose} />);
+    
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    await userEvent.click(closeButton);
+    
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+#### Testing with Zustand Store
+
+```typescript
+import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
+import useAppStore from '../../store/store';
+
+describe('Store: generateShareableLink', () => {
+  beforeEach(() => {
+    const { reset } = useAppStore.getState();
+    reset?.(); // Reset store between tests
+  });
+
+  it('generates a shareable link with compressed data', () => {
+    const { result } = renderHook(() => useAppStore());
+    
+    act(() => {
+      result.current.setTemplateMarkdown('# Test Template');
+      result.current.setModelCto('namespace test');
+      result.current.setData('{"name": "test"}');
+    });
+
+    const link = result.current.generateShareableLink();
+    expect(link).toContain('#data=');
+    expect(link).toContain(window.location.origin);
+  });
+});
+```
+
+### Testing Utilities
+
+#### Testing Error Handling
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { formatError } from '../helpers/errorUtils';
+
+describe('errorUtils', () => {
+  it('formats string errors', () => {
+    const result = formatError('Simple error');
+    expect(result).toBe('Simple error');
+  });
+
+  it('formats error objects with code', () => {
+    const error = { 
+      code: 'PARSE_ERROR', 
+      renderedMessage: 'Failed to parse template' 
+    };
+    const result = formatError(error);
+    expect(result).toContain('PARSE_ERROR');
+    expect(result).toContain('Failed to parse template');
+  });
+
+  it('formats array of errors', () => {
+    const errors = ['Error 1', 'Error 2'];
+    const result = formatError(errors);
+    expect(result).toContain('Error 1');
+    expect(result).toContain('Error 2');
+  });
+});
+```
+
+#### Testing Compression
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { compress, decompress } from '../compression/compression';
+
+describe('Compression', () => {
+  it('compresses and decompresses data correctly', () => {
+    const original = {
+      templateMarkdown: '# Test',
+      modelCto: 'namespace test',
+      data: '{"test": true}',
+      agreementHtml: '<h1>Test</h1>'
+    };
+
+    const compressed = compress(original);
+    expect(typeof compressed).toBe('string');
+    expect(compressed.length).toBeLessThan(JSON.stringify(original).length);
+
+    const decompressed = decompress(compressed);
+    expect(decompressed).toEqual(original);
+  });
+});
+```
+
+### Test Organization
+
+```
+src/tests/
+├── components/              # Component tests
+│   ├── Footer.test.tsx
+│   ├── Navbar.test.tsx
+│   ├── PlaygroundSidebar.test.tsx
+│   ├── SettingsModal.test.tsx
+│   └── __snapshots__/       # Snapshot files
+├── store/                   # Store tests
+│   ├── generateSharebleLink.test.tsx
+│   └── showLineNumbers.test.tsx
+└── utils/                   # Utility tests
+    ├── compression/
+    │   └── Compression.test.tsx
+    └── helpers/
+        └── errorUtils.test.ts
+```
+
+## End-to-End Testing with Playwright
+
+### Configuration
+
+Playwright is configured in `playwright.config.ts` with:
+
+- Multiple browser configurations (Chromium, Firefox, WebKit)
+- Screenshot on failure
+- Video recording for failed tests
+- Retry logic for flaky tests
+
+### Writing E2E Tests
+
+#### Basic E2E Test
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('loads the playground', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  
+  // Check page title
+  await expect(page).toHaveTitle(/Template Playground/);
+  
+  // Verify main components are visible
+  await expect(page.locator('[data-testid="template-editor"]')).toBeVisible();
+  await expect(page.locator('[data-testid="model-editor"]')).toBeVisible();
+  await expect(page.locator('[data-testid="data-editor"]')).toBeVisible();
+});
+```
+
+#### Testing User Workflows
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('creates and previews a template', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  
+  // Select a sample
+  await page.click('[data-testid="sample-dropdown"]');
+  await page.click('text=Hello World');
+  
+  // Wait for editors to load
+  await page.waitForSelector('[data-testid="template-editor"]');
+  
+  // Modify template
+  await page.fill('[data-testid="template-editor"]', '# Hello {{name}}');
+  
+  // Modify data
+  await page.fill('[data-testid="data-editor"]', '{"name": "World"}');
+  
+  // Check preview
+  await expect(page.locator('[data-testid="preview"]')).toContainText('Hello World');
+});
+```
+
+#### Testing Error States
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('displays error for invalid model', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+  
+  // Enter invalid model
+  await page.fill('[data-testid="model-editor"]', 'invalid syntax');
+  
+  // Wait for error panel
+  await expect(page.locator('[data-testid="problem-panel"]')).toBeVisible();
+  await expect(page.locator('[data-testid="problem-panel"]')).toContainText('Error');
+});
+```
+
+## Testing Best Practices
+
+### General Guidelines
+
+<AccordionGroup>
+  <Accordion title="Write Clear Test Names">
+    Use descriptive test names that explain what is being tested:
+    
+    ```typescript
+    // Good
+    it('displays error message when template parsing fails')
+    
+    // Bad
+    it('test error')
+    ```
+  </Accordion>
+
+  <Accordion title="Follow Arrange-Act-Assert Pattern">
+    Structure tests clearly:
+    
+    ```typescript
+    it('updates template when editor content changes', () => {
+      // Arrange
+      const { result } = renderHook(() => useAppStore());
+      
+      // Act
+      act(() => {
+        result.current.setTemplateMarkdown('new content');
+      });
+      
+      // Assert
+      expect(result.current.templateMarkdown).toBe('new content');
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Avoid Testing Implementation Details">
+    Test behavior, not implementation:
+    
+    ```typescript
+    // Good - tests user-facing behavior
+    expect(screen.getByText('Save')).toBeInTheDocument();
+    
+    // Bad - tests internal state
+    expect(component.state.isSaving).toBe(false);
+    ```
+  </Accordion>
+
+  <Accordion title="Use Data Test IDs Sparingly">
+    Prefer accessible queries:
+    
+    ```typescript
+    // Good
+    screen.getByRole('button', { name: /save/i })
+    screen.getByLabelText('Template Name')
+    
+    // Use data-testid only when necessary
+    screen.getByTestId('complex-component')
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Mocking
+
+#### Mocking Functions
+
+```typescript
+import { vi } from 'vitest';
+
+const mockFn = vi.fn();
+mockFn.mockReturnValue('mocked value');
+mockFn.mockResolvedValue('async value');
+```
+
+#### Mocking Modules
+
+```typescript
+import { vi } from 'vitest';
+
+vi.mock('../utils/compression/compression', () => ({
+  compress: vi.fn(() => 'compressed'),
+  decompress: vi.fn(() => ({ data: 'decompressed' }))
+}));
+```
+
+## Continuous Integration
+
+Tests run automatically on:
+
+- Pull request creation and updates
+- Commits to main branch
+- Pre-release checks
+
+### CI Test Commands
+
+```bash
+# Run all tests in CI mode
+npm run test:unit -- --run
+npm run test:e2e
+
+# Generate coverage report
+npm run test:unit -- --coverage
+```
+
+## Coverage Goals
+
+Aim for:
+
+- **80%+ overall coverage**: Core functionality should be well-tested
+- **Critical paths**: 100% coverage for state management and template processing
+- **Edge cases**: Test error conditions and boundary cases
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Contribution Guidelines" icon="book" href="/contributing/guidelines">
+    Review our contribution standards and workflow
+  </Card>
+  <Card title="Development Setup" icon="laptop-code" href="/contributing/setup">
+    Set up your development environment
+  </Card>
+</CardGroup>

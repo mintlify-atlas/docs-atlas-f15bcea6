@@ -1,0 +1,167 @@
+---
+title: "Sharing templates"
+description: "Share your templates with others using shareable links"
+---
+
+You can share your templates with others by generating a shareable link. The link includes all your template content encoded in the URL, so recipients can view and edit your template immediately.
+
+## Generate a shareable link
+
+<Steps>
+  <Step title="Create or load a template">
+    Make sure you have a template loaded in the playground with:
+    - A Concerto model
+    - TemplateMark template
+    - JSON data (optional but recommended)
+  </Step>
+  
+  <Step title="Click the Share button">
+    In the top navigation bar, locate and click the **Share** button.
+  </Step>
+  
+  <Step title="Copy the link">
+    The link is automatically copied to your clipboard, and you'll see a confirmation message: "Link copied to clipboard!"
+  </Step>
+  
+  <Step title="Share the link">
+    Paste the link anywhere you want to share it:
+    - Email
+    - Slack or Teams
+    - Documentation
+    - GitHub issues or pull requests
+  </Step>
+</Steps>
+
+## What's included in a shared link
+
+The shareable link contains all the content from your three editors:
+
+- Complete Concerto model code
+- Full TemplateMark template
+- JSON data
+- Preview state
+
+The content is compressed and encoded directly into the URL, so there's no server storage or expiration.
+
+<Tip>
+Shareable links can be quite long because they contain all your template data. Some platforms may have URL length limits.
+</Tip>
+
+## Open a shared link
+
+When someone opens a shared link:
+
+1. The playground automatically loads with all the shared content
+2. All three editors populate with the template data
+3. The preview renders immediately
+4. The recipient can view, edit, and experiment with the template
+
+<Note>
+Changes made by someone viewing a shared link don't affect the original. Each person works with their own copy.
+</Note>
+
+## Use cases for sharing
+
+### Collaboration
+Share templates with team members for review and feedback:
+
+```
+Hey team, I've drafted a new contract template. 
+Check it out: https://playground.accordproject.org/?data=...
+```
+
+### Support and troubleshooting
+When asking for help, share your template so others can see the exact issue:
+
+```
+I'm getting an error with this template. Can someone help?
+https://playground.accordproject.org/?data=...
+```
+
+### Documentation and examples
+Include working examples in documentation:
+
+```
+For a complete example, see this employment offer template:
+https://playground.accordproject.org/?data=...
+```
+
+### Learning and teaching
+Share templates in tutorials or training materials:
+
+```
+Lesson 3: Working with lists
+Open this template to follow along:
+https://playground.accordproject.org/?data=...
+```
+
+## Privacy considerations
+
+Because shareable links encode all template data in the URL:
+
+<Warning>
+- The link contains all your template content in plain text (though encoded)
+- Anyone with the link can view your template
+- Links are not password protected
+- Don't share templates containing sensitive or confidential information
+</Warning>
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Test before sharing">
+    Before sharing, verify that:
+    - The template renders correctly in the preview
+    - There are no errors in the Problem Panel
+    - The JSON data contains appropriate sample values (not real data)
+  </Accordion>
+
+  <Accordion title="Add descriptive data">
+    Use clear, descriptive sample data so recipients understand what each field represents:
+    
+    ```json
+    {
+      "$class": "org.example.Contract",
+      "partyName": "Example Company Name",
+      "amount": 1000.00,
+      "date": "2024-01-01"
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Include comments">
+    Add comments in your TemplateMark or Concerto model to explain complex parts:
+    
+    ```concerto
+    // This amount includes all taxes and fees
+    o Double totalAmount
+    ```
+  </Accordion>
+
+  <Accordion title="Use URL shorteners for long links">
+    If your template is complex, the URL may be very long. Consider using a URL shortener service for easier sharing.
+  </Accordion>
+</AccordionGroup>
+
+## Limitations
+
+- **URL length**: Very complex templates may create URLs that exceed browser or platform limits
+- **No versioning**: Each share creates a new link; there's no history of changes
+- **No access control**: Anyone with the link can view the template
+- **No persistence**: The template only exists in the URL; if the link is lost, the template is lost
+
+<Tip>
+For version control and long-term storage, consider saving your templates in a Git repository alongside your documentation.
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Exporting documents" icon="download" href="/guides/exporting-documents">
+    Export your templates as PDF or HTML
+  </Card>
+  
+  <Card title="AI assistant" icon="robot" href="/guides/ai-assistant">
+    Use AI to help create and improve templates
+  </Card>
+</CardGroup>

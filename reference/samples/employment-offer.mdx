@@ -1,0 +1,340 @@
+---
+title: Employment Offer Letter Sample
+description: Professional employment offer letter template with salary, dates, and optional probation period
+---
+
+The Employment Offer Letter sample demonstrates how multiple TemplateMark features work together in a real-world business document. It includes nested concepts, date formatting, monetary values, conditional sections, and clauses.
+
+## Complete Example
+
+### Model
+
+The model defines a comprehensive employment offer structure:
+
+```concerto
+namespace org.accordproject.employment@1.0.0
+
+/**
+ * Represents a monetary value with currency
+ */
+concept MonetaryAmount {
+  o Double doubleValue
+  o String currencyCode
+}
+
+/**
+ * Optional probation details
+ */
+concept Probation {
+  o Integer months
+}
+
+/**
+ * Main template model for the employment offer
+ */
+@template
+concept EmploymentOffer {
+  o String candidateName
+  o String companyName
+  o String roleTitle
+  o MonetaryAmount annualSalary
+  o DateTime startDate
+  o Probation probation optional
+}
+```
+
+**Key Features:**
+- **Nested Concepts**: `MonetaryAmount` and `Probation` are used within `EmploymentOffer`
+- **DateTime Type**: `startDate` field for date handling
+- **Optional Field**: `probation` field marked as `optional`
+- **Structured Data**: Salary includes both amount and currency code
+
+### Template
+
+The template creates a professional offer letter:
+
+```markdown
+DATE: {{startDate as "DD MMMM YYYY"}}
+
+Dear {{candidateName}},
+
+We are pleased to offer you the position of **{{roleTitle}}** at **{{companyName}}**.
+
+Your employment with {{companyName}} will commence on {{startDate as "DD MMMM YYYY"}}.
+
+{{#clause annualSalary}}
+Your annual gross salary will be **{{doubleValue as "0,0"}} {{currencyCode}}**, payable in accordance with company policies.
+{{/clause}}
+
+{{#if probation}}
+{{#clause probation}}
+This offer includes a probation period of **{{months}} months**, during which your performance and suitability for the role will be evaluated.
+{{/clause}}
+{{/if}}
+
+We are excited about the opportunity to work with you and look forward to your contribution to the team.
+
+Sincerely,  
+**Human Resources**  
+{{companyName}}
+```
+
+**Key Features:**
+- **Date Formatting**: `{{startDate as "DD MMMM YYYY"}}` formats dates
+- **Number Formatting**: `{{doubleValue as "0,0"}}` adds thousand separators
+- **Clauses**: `{{#clause annualSalary}}` creates reusable sections
+- **Conditionals**: `{{#if probation}}` shows section only when probation exists
+- **Nested Access**: Access `doubleValue` and `currencyCode` from `annualSalary` object
+
+### Data
+
+The data object provides complete offer details:
+
+```json
+{
+  "$class": "org.accordproject.employment@1.0.0.EmploymentOffer",
+  "candidateName": "Ishan Gupta",
+  "companyName": "Tech Innovators Inc.",
+  "roleTitle": "Junior AI Engineer",
+  "annualSalary": {
+    "$class": "org.accordproject.employment@1.0.0.MonetaryAmount",
+    "doubleValue": 85000,
+    "currencyCode": "USD"
+  },
+  "startDate": "2025-02-01T09:00:00.000Z",
+  "probation": {
+    "$class": "org.accordproject.employment@1.0.0.Probation",
+    "months": 3
+  }
+}
+```
+
+**Key Points:**
+- Each nested object includes its own `$class` property
+- DateTime values use ISO 8601 format
+- Optional fields can be included or omitted
+
+## Generated Output
+
+When rendered with the data above, this template produces:
+
+---
+
+DATE: 01 February 2025
+
+Dear Ishan Gupta,
+
+We are pleased to offer you the position of **Junior AI Engineer** at **Tech Innovators Inc.**.
+
+Your employment with Tech Innovators Inc. will commence on 01 February 2025.
+
+Your annual gross salary will be **85,000 USD**, payable in accordance with company policies.
+
+This offer includes a probation period of **3 months**, during which your performance and suitability for the role will be evaluated.
+
+We are excited about the opportunity to work with you and look forward to your contribution to the team.
+
+Sincerely,  
+**Human Resources**  
+Tech Innovators Inc.
+
+---
+
+## Usage
+
+<Accordion title="Complete TypeScript Example">
+
+```typescript
+import { TemplateMarkTransformer } from '@accordproject/markdown-template';
+
+const MODEL = `namespace org.accordproject.employment@1.0.0
+
+concept MonetaryAmount {
+  o Double doubleValue
+  o String currencyCode
+}
+
+concept Probation {
+  o Integer months
+}
+
+@template
+concept EmploymentOffer {
+  o String candidateName
+  o String companyName
+  o String roleTitle
+  o MonetaryAmount annualSalary
+  o DateTime startDate
+  o Probation probation optional
+}`;
+
+const TEMPLATE = `DATE: {{startDate as "DD MMMM YYYY"}}
+
+Dear {{candidateName}},
+
+We are pleased to offer you the position of **{{roleTitle}}** at **{{companyName}}**.
+
+Your employment with {{companyName}} will commence on {{startDate as "DD MMMM YYYY"}}.
+
+{{#clause annualSalary}}
+Your annual gross salary will be **{{doubleValue as "0,0"}} {{currencyCode}}**, payable in accordance with company policies.
+{{/clause}}
+
+{{#if probation}}
+{{#clause probation}}
+This offer includes a probation period of **{{months}} months**, during which your performance and suitability for the role will be evaluated.
+{{/clause}}
+{{/if}}
+
+We are excited about the opportunity to work with you and look forward to your contribution to the team.
+
+Sincerely,  
+**Human Resources**  
+{{companyName}}`;
+
+const DATA = {
+  "$class": "org.accordproject.employment@1.0.0.EmploymentOffer",
+  "candidateName": "Ishan Gupta",
+  "companyName": "Tech Innovators Inc.",
+  "roleTitle": "Junior AI Engineer",
+  "annualSalary": {
+    "$class": "org.accordproject.employment@1.0.0.MonetaryAmount",
+    "doubleValue": 85000,
+    "currencyCode": "USD"
+  },
+  "startDate": "2025-02-01T09:00:00.000Z",
+  "probation": {
+    "$class": "org.accordproject.employment@1.0.0.Probation",
+    "months": 3
+  }
+};
+
+const transformer = new TemplateMarkTransformer();
+const result = await transformer.generate({
+  model: MODEL,
+  template: TEMPLATE,
+  data: DATA
+});
+
+console.log(result);
+```
+
+</Accordion>
+
+## Variations
+
+<Accordion title="Without Probation Period">
+
+Simply omit the `probation` field from the data:
+
+```json
+{
+  "$class": "org.accordproject.employment@1.0.0.EmploymentOffer",
+  "candidateName": "Jane Smith",
+  "companyName": "Global Corp",
+  "roleTitle": "Senior Developer",
+  "annualSalary": {
+    "$class": "org.accordproject.employment@1.0.0.MonetaryAmount",
+    "doubleValue": 120000,
+    "currencyCode": "EUR"
+  },
+  "startDate": "2025-03-15T09:00:00.000Z"
+}
+```
+
+The probation section will not appear in the output.
+
+</Accordion>
+
+<Accordion title="Different Currency and Amount">
+
+```json
+{
+  "$class": "org.accordproject.employment@1.0.0.EmploymentOffer",
+  "candidateName": "Robert Chen",
+  "companyName": "Innovation Labs",
+  "roleTitle": "Product Manager",
+  "annualSalary": {
+    "$class": "org.accordproject.employment@1.0.0.MonetaryAmount",
+    "doubleValue": 95000,
+    "currencyCode": "GBP"
+  },
+  "startDate": "2025-04-01T09:00:00.000Z",
+  "probation": {
+    "$class": "org.accordproject.employment@1.0.0.Probation",
+    "months": 6
+  }
+}
+```
+
+</Accordion>
+
+## Key Concepts Demonstrated
+
+### 1. Date Formatting
+
+```markdown
+{{startDate as "DD MMMM YYYY"}}
+```
+
+Formats the ISO datetime as "01 February 2025". See [Date Formatting](/guide/formatting#dates) for more patterns.
+
+### 2. Number Formatting
+
+```markdown
+{{doubleValue as "0,0"}}
+```
+
+Adds thousand separators: 85000 becomes 85,000. See [Number Formatting](/guide/formatting#numbers) for more options.
+
+### 3. Clauses
+
+```markdown
+{{#clause annualSalary}}
+...
+{{/clause}}
+```
+
+Clauses create reusable, semantically meaningful sections. Learn more about [Clauses](/guide/clauses).
+
+### 4. Conditional Sections
+
+```markdown
+{{#if probation}}
+...
+{{/if}}
+```
+
+Shows content only when the field exists and is not null. See [Conditionals](/guide/conditionals).
+
+### 5. Nested Object Access
+
+Inside `{{#clause annualSalary}}`, you can directly access `doubleValue` and `currencyCode` properties.
+
+## Extending the Sample
+
+You can extend this template by adding:
+
+1. **Benefits section**: Add an array of benefits
+2. **Multiple signatories**: Add company representative details
+3. **Location information**: Add office location
+4. **Reporting structure**: Add manager name
+5. **Equity compensation**: Add stock options or RSUs
+
+## Related Samples
+
+<CardGroup cols={2}>
+  <Card title="NDA Sample" icon="file-signature" href="/reference/samples/nda">
+    Another business document example
+  </Card>
+  <Card title="Customer Order" icon="shopping-cart">
+    More complex data structures with lists
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- Learn more about [date formatting](/guide/formatting#dates)
+- Explore [conditional logic](/guide/conditionals)
+- Understand [clauses in depth](/guide/clauses)
+- Read about [optional fields](/guide/models#optional-fields)

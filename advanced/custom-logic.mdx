@@ -1,0 +1,224 @@
+---
+title: Custom Logic in Templates
+description: Learn how to add custom logic to your templates using formulas, conditionals, and advanced TemplateMark features
+---
+
+## Overview
+
+The Template Playground supports custom logic in templates through TypeScript formulas, conditional blocks, and data transformation features. This allows you to create dynamic templates that go beyond simple variable substitution.
+
+## TypeScript Formulas
+
+Formulas enable you to execute TypeScript code directly within your templates to perform calculations, transformations, and other dynamic operations.
+
+### Basic Formula Syntax
+
+Use the `{{% %}}` syntax to embed TypeScript expressions:
+
+```markdown
+Your name has {{% return name.length %}} characters.
+```
+
+### Example: Character Count
+
+Here's a complete example that calculates the length of a string:
+
+**Concerto Model:**
+```concerto
+namespace hello@1.0.0
+
+@template
+concept HelloWorld {
+    o String name
+}
+```
+
+**Template:**
+```markdown
+### Welcome {{name}}!
+
+Your name has {{% return name.length %}} characters.
+```
+
+**Data:**
+```json
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "John Doe"
+}
+```
+
+**Output:**
+```
+Welcome John Doe!
+
+Your name has 8 characters.
+```
+
+### Formula with Current Time
+
+You can use JavaScript date functions in formulas:
+
+```markdown
+{{% return new Date().toISOString() %}}
+```
+
+<Note>
+Formulas are executed during template generation and have access to all template variables in scope.
+</Note>
+
+## Conditional Logic
+
+Conditional blocks allow you to render content based on conditions.
+
+### Clause with Condition
+
+The `#clause` block with a `condition` attribute enables conditional rendering:
+
+**Model:**
+```concerto
+namespace hello@1.0.0
+
+concept Address {
+    o String line1
+    o String city
+    o String state
+    o String country
+}
+
+@template
+concept Customer {
+    o Address address optional
+}
+```
+
+**Template:**
+```markdown
+{{#clause address condition="return address!==undefined"}}  
+#### Address
+{{line1}},  
+{{city}}, {{state}},  
+{{country}}  
+{{/clause}}
+
+Done.
+```
+
+The content inside the clause block only renders when the condition evaluates to `true`.
+
+### Optional Blocks
+
+The `{{#optional}}` block provides a cleaner syntax for optional content with else branches:
+
+```markdown
+{{#optional loyaltyStatus}}
+You have loyalty status.
+{{else}}
+You do not have a loyalty status.
+{{/optional}}
+```
+
+## List Processing
+
+### Ordered and Unordered Lists
+
+Generate markdown lists from array data:
+
+**Ordered List:**
+```markdown
+{{#olist middleNames}}
+- {{this}}
+{{/olist}}
+```
+
+**Unordered List:**
+```markdown
+{{#ulist middleNames}}
+- {{this}}
+{{/ulist}}
+```
+
+### Join Block
+
+The `#join` block formats arrays as natural language with locale and style options:
+
+```markdown
+{{#join items locale="en" style="long"}}{{/join}}
+```
+
+**Style Options:**
+- `narrow`: Minimal formatting
+- `short`: Abbreviated formatting  
+- `long`: Full formatting (default)
+
+**Type Options:**
+- `conjunction`: "and" (default)
+- `disjunction`: "or"
+- `unit`: No conjunction
+
+**Example:**
+```markdown
+Insured items: {{#join items locale="en" style="long"}}{{/join}}
+```
+
+With data `["CAR", "ACCESSORIES", "SPARE_PARTS"]`, outputs:
+```
+Insured items: CAR, ACCESSORIES, and SPARE_PARTS
+```
+
+## Advanced Techniques
+
+### Accessing Nested Properties
+
+Access nested object properties using dot notation:
+
+```markdown
+{{person.address.city}}
+```
+
+### Combining Formulas and Conditionals
+
+You can use formulas within conditional expressions:
+
+```markdown
+{{#clause items condition="return items.length > 0"}}
+You have {{% return items.length %}} items.
+{{/clause}}
+```
+
+### Complex Calculations
+
+Formulas support complex TypeScript expressions:
+
+```markdown
+Total: {{% return items.reduce((sum, item) => sum + item.price, 0).toFixed(2) %}}
+```
+
+<Warning>
+Formulas execute in a sandboxed environment. External imports and some JavaScript features may be restricted for security.
+</Warning>
+
+## Best Practices
+
+1. **Keep formulas simple**: Complex logic is harder to maintain and debug
+2. **Use conditionals for optional content**: Leverage `#optional` and `#clause` instead of inline conditions
+3. **Test with edge cases**: Verify behavior with empty arrays, undefined values, and boundary conditions
+4. **Document custom logic**: Add comments in your template to explain non-obvious formulas
+5. **Validate data structure**: Ensure your Concerto model accurately reflects the data your formulas expect
+
+## Debugging Custom Logic
+
+When custom logic fails, check:
+
+1. **Variable scope**: Ensure variables referenced in formulas are in scope
+2. **Data types**: Verify the data matches your Concerto model types
+3. **Syntax errors**: Check for typos in formula expressions
+4. **Condition evaluation**: Test that conditions return boolean values
+
+See [Error Handling](/advanced/error-handling) for more debugging strategies.
+
+## Next Steps
+
+- Explore [Markdown Transform](/advanced/markdown-transform) to understand the template rendering pipeline
+- Review [TemplateMark Syntax](/reference/syntax/formulas) for complete formula reference
+- Check out sample templates with custom logic in the playground

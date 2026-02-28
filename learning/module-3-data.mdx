@@ -1,0 +1,220 @@
+---
+title: 'Module 3: Data binding'
+description: Generate and bind JSON data to your template
+---
+
+In this final module, you'll create JSON data that conforms to your Concerto model and see how it populates your TemplateMark template. This brings together everything you've learned to create a complete, working template.
+
+## What you'll build
+
+You'll create a JSON data object that matches the structure defined in your `HelloWorld` model and watch as it dynamically populates your template.
+
+## Creating template data
+
+Follow these steps to generate data for your template:
+
+<Steps>
+  <Step title="Understand the data structure">
+    Your data must conform to the shape defined by your Concerto model. Every data object needs:
+    - A `$class` property that identifies the concept type
+    - Properties that match the model definition
+  </Step>
+
+  <Step title="Define the data object">
+    Create an instance of the `hello@1.0.0.HelloWorld` data model:
+
+    ```json
+    {
+      "$class": "hello@1.0.0.HelloWorld",
+      "name": "World"
+    }
+    ```
+
+    This object:
+    - Uses `$class` to specify it's an instance of `hello@1.0.0.HelloWorld`
+    - Sets the `name` property to `"World"`
+  </Step>
+
+  <Step title="See the result">
+    When this data is applied to your template `Hello {{name}}.`, the output will be:
+
+    ```
+    Hello World.
+    ```
+
+    The `{{name}}` variable is replaced with the value `"World"` from your data.
+  </Step>
+</Steps>
+
+## Understanding the $class property
+
+The `$class` property is crucial for data binding:
+
+- It must match the fully qualified name of your concept: `namespace@version.ConceptName`
+- For the HelloWorld example: `hello@1.0.0.HelloWorld`
+- This allows the template engine to validate data against the correct model
+
+## Complete example
+
+Here's how all three pieces work together:
+
+**Model (from Module 1):**
+```concerto
+namespace hello@1.0.0
+
+@template
+concept HelloWorld {
+    o String name
+}
+```
+
+**Template (from Module 2):**
+```markdown
+> The one, the only...
+
+### Hello {{name}}!
+```
+
+**Data:**
+```json
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "John Doe"
+}
+```
+
+**Output:**
+```markdown
+> The one, the only...
+
+### Hello John Doe!
+```
+
+## Working with complex data
+
+As your templates become more sophisticated, your data objects will include more properties and different data types.
+
+### Multiple properties
+
+**Model:**
+```concerto
+namespace hello@1.0.0
+
+@template
+concept ProductAnnouncement {
+    o String productName
+    o String description
+    o DateTime releaseDate
+}
+```
+
+**Data:**
+```json
+{
+  "$class": "hello@1.0.0.ProductAnnouncement",
+  "productName": "New Product X",
+  "description": "Check out our latest product offering, featuring advanced features and improved performance.",
+  "releaseDate": "2024-10-01T00:00:00Z"
+}
+```
+
+### Date values
+
+Notice how dates are provided in ISO 8601 format (`"2024-10-01T00:00:00Z"`). The template can then format this date for display using the `as` keyword:
+
+```markdown
+**Release Date:** {{releaseDate as "D MMMM YYYY"}}
+```
+
+This renders as: **Release Date:** 1 October 2024
+
+## Data validation
+
+The Accord Project template engine validates your data against the Concerto model:
+
+<Check>**Valid data**: All required properties are present and have correct types</Check>
+<Warning>**Missing properties**: You'll get an error if required properties are missing</Warning>
+<Warning>**Type mismatches**: Values must match the types defined in your model</Warning>
+<Warning>**Invalid $class**: The $class must reference an existing concept with the @template decorator</Warning>
+
+## Testing different data
+
+You can experiment with different data values to see how they populate your template:
+
+```json
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "Alice"
+}
+```
+
+Outputs: `Hello Alice.`
+
+```json
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "Bob"
+}
+```
+
+Outputs: `Hello Bob.`
+
+This demonstrates how templates can be reused with different data to generate personalized content.
+
+## Programmatic data generation
+
+In a real application, you might generate data programmatically:
+
+```javascript
+const data = {
+  $class: 'hello@1.0.0.HelloWorld',
+  name: 'World',
+};
+```
+
+This allows you to integrate template generation into your application workflows.
+
+## Next steps
+
+Congratulations! You've completed the learning pathway and created your first Accord Project template. You now understand:
+
+- How to define data models with Concerto
+- How to create dynamic templates with TemplateMark
+- How to bind JSON data to templates
+
+### Continue learning
+
+<CardGroup cols={2}>
+  <Card title="Explore sample templates" icon="folder-open" href="/samples">
+    See more complex examples and real-world use cases
+  </Card>
+  <Card title="Concerto documentation" icon="book" href="https://concerto.accordproject.org/">
+    Deep dive into advanced Concerto features
+  </Card>
+  <Card title="TemplateMark guide" icon="markdown" href="https://github.com/accordproject/markdown-transform">
+    Learn advanced templating techniques
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference">
+    Integrate templates into your applications
+  </Card>
+</CardGroup>
+
+## Key concepts
+
+<AccordionGroup>
+  <Accordion title="What is the $class property?">
+    The `$class` property identifies the type of data object. It must be the fully qualified name of a concept from your Concerto model (namespace@version.ConceptName). The template engine uses this to validate the data structure.
+  </Accordion>
+
+  <Accordion title="How is data validated?">
+    The Accord Project template engine validates your data against the Concerto model to ensure all required properties are present and have the correct types. This prevents runtime errors and ensures data consistency.
+  </Accordion>
+
+  <Accordion title="Can I use nested objects?">
+    Yes! Concerto supports complex data structures including nested concepts, arrays, and relationships. Your JSON data can include nested objects that match your model's structure.
+  </Accordion>
+
+  <Accordion title="How do I handle optional properties?">
+    Properties marked as optional in your Concerto model (using `o` prefix) don't need to be included in your data object. The template should handle missing values gracefully.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,383 @@
+---
+title: 'Formulas'
+description: 'Formula expressions and calculations in TemplateMark'
+icon: 'function'
+---
+
+## Overview
+
+Formulas allow you to execute JavaScript expressions within your templates to perform calculations, transformations, and complex logic.
+
+## Formula Syntax
+
+Formulas are enclosed in `{{% %}}` and must start with `return`:
+
+```markdown
+{{% return expression %}}
+```
+
+<Note>
+All formula expressions must begin with the `return` keyword.
+</Note>
+
+## Basic Calculations
+
+Perform arithmetic operations on your data:
+
+```markdown
+{{% return value1 + value2 %}}
+{{% return amount * 1.1 %}}
+{{% return total - discount %}}
+```
+
+### Example: Simple Calculation
+
+<CodeGroup>
+```json Data
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "John Doe"
+}
+```
+
+```markdown Template
+### Welcome {{name}}!
+
+Your name has {{% return name.length %}} characters.
+```
+
+```text Output
+### Welcome John Doe!
+
+Your name has 8 characters.
+```
+</CodeGroup>
+
+## Financial Calculations
+
+Formulas are perfect for computing taxes, totals, and other financial values:
+
+### VAT and Total Calculation
+
+<CodeGroup>
+```json Data
+{
+  "$class": "payment@1.0.0.PaymentReceipt",
+  "amount": 250.00,
+  "currency": "USD",
+  "vatPercent": 10
+}
+```
+
+```markdown Template
+### Payment Summary
+
+- Amount: {{amount as "0,0.00"}} {{currency}}
+- VAT ({{vatPercent}}%): {{% return (amount * vatPercent / 100).toFixed(2) %}} {{currency}}
+- Total Paid: **{{% return (amount + (amount * vatPercent / 100)).toFixed(2) %}} {{currency}}**
+```
+
+```text Output
+### Payment Summary
+
+- Amount: 250.00 USD
+- VAT (10%): 25.00 USD
+- Total Paid: **275.00 USD**
+```
+</CodeGroup>
+
+## String Operations
+
+Manipulate strings using JavaScript string methods:
+
+<Tabs>
+  <Tab title="Length">
+    ```markdown
+    {{% return text.length %}}
+    ```
+  </Tab>
+  <Tab title="Uppercase">
+    ```markdown
+    {{% return name.toUpperCase() %}}
+    ```
+  </Tab>
+  <Tab title="Lowercase">
+    ```markdown
+    {{% return email.toLowerCase() %}}
+    ```
+  </Tab>
+  <Tab title="Substring">
+    ```markdown
+    {{% return description.substring(0, 100) %}}
+    ```
+  </Tab>
+  <Tab title="Replace">
+    ```markdown
+    {{% return text.replace('old', 'new') %}}
+    ```
+  </Tab>
+</Tabs>
+
+## Date and Time
+
+### The `now` Variable
+
+Access the current date and time using the implicit `now` variable:
+
+```markdown
+{{% return now.toISOString() %}}
+```
+
+<CodeGroup>
+```markdown Template
+Today is **{{% return now.toISOString() %}}**.
+```
+
+```text Output
+Today is **2024-06-15T10:30:00.000Z**.
+```
+</CodeGroup>
+
+### Date Methods
+
+<Tabs>
+  <Tab title="ISO String">
+    ```markdown
+    {{% return now.toISOString() %}}
+    ```
+    Output: `2024-06-15T10:30:00.000Z`
+  </Tab>
+  <Tab title="Date String">
+    ```markdown
+    {{% return now.toDateString() %}}
+    ```
+    Output: `Sat Jun 15 2024`
+  </Tab>
+  <Tab title="Year">
+    ```markdown
+    {{% return now.getFullYear() %}}
+    ```
+    Output: `2024`
+  </Tab>
+  <Tab title="Month">
+    ```markdown
+    {{% return now.getMonth() + 1 %}}
+    ```
+    Output: `6` (January is 0)
+  </Tab>
+</Tabs>
+
+## Number Formatting
+
+Use JavaScript number methods for precise formatting:
+
+### Common Number Methods
+
+<Tabs>
+  <Tab title="Fixed Decimals">
+    ```markdown
+    {{% return value.toFixed(2) %}}
+    ```
+    Formats to 2 decimal places: `123.46`
+  </Tab>
+  <Tab title="Precision">
+    ```markdown
+    {{% return value.toPrecision(4) %}}
+    ```
+    Formats to 4 significant digits: `123.5`
+  </Tab>
+  <Tab title="Exponential">
+    ```markdown
+    {{% return value.toExponential(2) %}}
+    ```
+    Scientific notation: `1.23e+2`
+  </Tab>
+</Tabs>
+
+## Array Operations
+
+Work with arrays using JavaScript array methods:
+
+<Tabs>
+  <Tab title="Length">
+    ```markdown
+    {{% return items.length %}}
+    ```
+  </Tab>
+  <Tab title="Join">
+    ```markdown
+    {{% return items.join(', ') %}}
+    ```
+  </Tab>
+  <Tab title="First Item">
+    ```markdown
+    {{% return items[0] %}}
+    ```
+  </Tab>
+  <Tab title="Last Item">
+    ```markdown
+    {{% return items[items.length - 1] %}}
+    ```
+  </Tab>
+</Tabs>
+
+## Conditional Expressions
+
+Use ternary operators for inline conditionals:
+
+```markdown
+{{% return condition ? 'value if true' : 'value if false' %}}
+```
+
+### Examples
+
+<Tabs>
+  <Tab title="Status Display">
+    ```markdown
+    Status: {{% return active ? '✓ Active' : '✗ Inactive' %}}
+    ```
+  </Tab>
+  <Tab title="Discount Badge">
+    ```markdown
+    {{% return discount > 0 ? '🎉 Discount Applied!' : '' %}}
+    ```
+  </Tab>
+  <Tab title="Quantity Label">
+    ```markdown
+    {{% return quantity === 1 ? 'item' : 'items' %}}
+    ```
+  </Tab>
+</Tabs>
+
+## Complex Calculations
+
+Combine multiple operations for sophisticated logic:
+
+### Multi-tier Discount Calculation
+
+```markdown
+{{% return amount > 1000 ? amount * 0.85 : amount > 500 ? amount * 0.90 : amount * 0.95 %}}
+```
+
+### Percentage Calculation
+
+```markdown
+Progress: {{% return Math.round((completed / total) * 100) %}}}%
+```
+
+### Duration Calculation
+
+```markdown
+{{% return Math.floor(durationInMonths / 12) %}}} years and {{% return durationInMonths % 12 %}}} months
+```
+
+## Mathematical Operations
+
+Use the `Math` object for advanced calculations:
+
+<Tabs>
+  <Tab title="Rounding">
+    ```markdown
+    {{% return Math.round(value) %}}
+    {{% return Math.floor(value) %}}
+    {{% return Math.ceil(value) %}}
+    ```
+  </Tab>
+  <Tab title="Min/Max">
+    ```markdown
+    {{% return Math.max(a, b, c) %}}
+    {{% return Math.min(a, b, c) %}}
+    ```
+  </Tab>
+  <Tab title="Power/Root">
+    ```markdown
+    {{% return Math.pow(base, exponent) %}}
+    {{% return Math.sqrt(value) %}}
+    ```
+  </Tab>
+  <Tab title="Absolute">
+    ```markdown
+    {{% return Math.abs(value) %}}
+    ```
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion icon="return" title="Always use return keyword">
+    Formula expressions must start with `return`:
+    
+    ```markdown
+    Good: {{% return amount * 1.1 %}}
+    Bad: {{% amount * 1.1 %}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="calculator" title="Format calculated numbers">
+    Use `.toFixed()` for consistent decimal places:
+    
+    ```markdown
+    {{% return (price * quantity).toFixed(2) %}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="shield-check" title="Handle undefined values">
+    Check for undefined before calculations:
+    
+    ```markdown
+    {{% return discount ? (amount * discount / 100).toFixed(2) : '0.00' %}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="code" title="Keep formulas readable">
+    Break complex calculations into multiple formulas:
+    
+    ```markdown
+    Good:
+    - Subtotal: {{% return amount.toFixed(2) %}}
+    - VAT: {{% return (amount * 0.1).toFixed(2) %}}
+    - Total: {{% return (amount * 1.1).toFixed(2) %}}
+    
+    Avoid:
+    - Total: {{% return (amount + (amount * vatRate / 100) + (amount * serviceFee / 100) - discount).toFixed(2) %}}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+**Division by zero**
+
+Always check for zero before division:
+
+```markdown
+{{% return total > 0 ? (completed / total * 100).toFixed(1) : 0 %}}%
+```
+</Warning>
+
+<Tip>
+**Reuse variable formatting**
+
+For simple variable output, use the `as` formatter instead of formulas:
+
+```markdown
+Preferred: {{amount as "0,0.00"}}
+Also works: {{% return amount.toFixed(2) %}}
+```
+</Tip>
+
+## Related Topics
+
+<CardGroup cols={2}>
+  <Card title="Variables" icon="brackets-curly" href="/reference/syntax/variables">
+    Learn about variable syntax and formatting
+  </Card>
+  
+  <Card title="Conditionals" icon="code-branch" href="/reference/syntax/conditionals">
+    Use formulas in conditional expressions
+  </Card>
+  
+  <Card title="Lists" icon="list" href="/reference/syntax/lists">
+    Apply formulas within list iterations
+  </Card>
+</CardGroup>

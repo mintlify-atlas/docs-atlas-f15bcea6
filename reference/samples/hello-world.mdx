@@ -1,0 +1,180 @@
+---
+title: Hello World Sample
+description: A simple introduction to TemplateMark with basic variable substitution
+---
+
+The Hello World sample is the simplest TemplateMark template, demonstrating basic variable substitution. It's perfect for getting started and understanding the fundamentals.
+
+## Complete Example
+
+### Model
+
+The model defines a simple concept with a single `name` property:
+
+```concerto
+namespace hello@1.0.0
+
+@template
+concept HelloWorld {
+    o String name
+}
+```
+
+**Key Points:**
+- `namespace hello@1.0.0` - Defines the namespace and version
+- `@template` - Decorator marking this as a template concept
+- `o String name` - A required string property called `name`
+
+### Template
+
+The template uses markdown with a variable placeholder:
+
+```markdown
+> The one, the only...
+
+### Hello {{name}}!
+```
+
+**Key Points:**
+- `{{name}}` - Variable placeholder that gets replaced with the actual name
+- Uses standard markdown syntax (blockquote `>` and heading `###`)
+- Clean and simple formatting
+
+### Data
+
+The data object provides the value for the template:
+
+```json
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "John Doe"
+}
+```
+
+**Key Points:**
+- `$class` - Fully-qualified type name matching the model
+- `name` - The value that will replace `{{name}}` in the template
+
+## Generated Output
+
+When rendered, this template produces:
+
+> The one, the only...
+
+### Hello John Doe!
+
+## Usage
+
+Here's how to use this sample in your code:
+
+```typescript
+import { TemplateMarkTransformer } from '@accordproject/markdown-template';
+
+const MODEL = `namespace hello@1.0.0
+
+@template
+concept HelloWorld {
+    o String name
+}`;
+
+const TEMPLATE = `> The one, the only...
+
+### Hello {{name}}!
+`;
+
+const DATA = {
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "John Doe"
+};
+
+const transformer = new TemplateMarkTransformer();
+const result = await transformer.generate({
+  model: MODEL,
+  template: TEMPLATE,
+  data: DATA
+});
+
+console.log(result);
+```
+
+## Try It Yourself
+
+Experiment with different values:
+
+<Accordion title="Different Names">
+
+```json
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "Alice"
+}
+```
+
+Output:
+> The one, the only...
+
+### Hello Alice!
+
+</Accordion>
+
+<Accordion title="Multiple Words">
+
+```json
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "Dr. Sarah Johnson"
+}
+```
+
+Output:
+> The one, the only...
+
+### Hello Dr. Sarah Johnson!
+
+</Accordion>
+
+## Extending the Sample
+
+You can extend this basic sample by:
+
+1. **Adding more properties:**
+```concerto
+@template
+concept HelloWorld {
+    o String name
+    o String greeting optional
+}
+```
+
+2. **Using the properties in the template:**
+```markdown
+> The one, the only...
+
+### {{greeting}} {{name}}!
+```
+
+3. **Providing the data:**
+```json
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "John Doe",
+  "greeting": "Welcome"
+}
+```
+
+## Related Samples
+
+<CardGroup cols={2}>
+  <Card title="Formula Sample" icon="calculator">
+    Add dynamic calculations to your templates
+  </Card>
+  <Card title="Employment Offer" icon="file-contract" href="/reference/samples/employment-offer">
+    See a more complex real-world example
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- Learn about [date and number formatting](/guide/formatting)
+- Explore [conditional logic](/guide/conditionals)
+- Understand [clauses](/guide/clauses)

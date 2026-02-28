@@ -1,0 +1,154 @@
+---
+title: 'Module 2: TemplateMark templates'
+description: Draft a TemplateMark template with dynamic variables
+---
+
+In this module, you'll create a TemplateMark template that uses the Concerto model you defined in Module 1. TemplateMark allows you to create dynamic templates with variables that get replaced with actual data at runtime.
+
+<Info>
+  Learn more about TemplateMark in the [TemplateMark specification](https://github.com/accordproject/markdown-transform?tab=readme-ov-file#templatemark-dom)
+</Info>
+
+## What you'll build
+
+You'll create a simple template that displays "Hello" followed by a dynamic name variable. This template will use the `name` property from your `HelloWorld` model.
+
+## Creating your template
+
+Open the TemplateMark editor and follow along:
+
+<Steps>
+  <Step title="Write the basic template">
+    Create a template with plain text and a variable placeholder. Variables in TemplateMark are enclosed in double curly braces `{{` and `}}`.
+
+    ```markdown
+    Hello {{name}}.
+    ```
+
+    This template consists of:
+    - Plain text: `"Hello"` and `"."`
+    - A variable: `{{name}}` that will be replaced with actual data
+  </Step>
+
+  <Step title="Test the template">
+    The playground will automatically validate your template against the Concerto model. The `name` variable corresponds to the `name` property you defined in the `HelloWorld` concept.
+  </Step>
+</Steps>
+
+## Understanding TemplateMark syntax
+
+TemplateMark uses a simple syntax for dynamic content:
+
+- `{{variableName}}` - Inserts the value of a variable
+- Variables must match property names in your Concerto model
+- You can combine variables with any markdown formatting
+
+## Enhanced example
+
+Here's a more sophisticated template that includes markdown formatting:
+
+```markdown
+> The one, the only...
+
+### Hello {{name}}!
+```
+
+This template uses:
+- A blockquote (`>`) for emphasis
+- A heading (`###`) for structure
+- The `{{name}}` variable for dynamic content
+
+## Working with different data types
+
+TemplateMark supports various data types and formatting options:
+
+### String variables
+
+```markdown
+Hello {{name}}.
+```
+
+### Date formatting
+
+You can format dates using the `as` keyword:
+
+```markdown
+**Release Date:** {{releaseDate as "D MMMM YYYY"}}
+```
+
+This formats a DateTime value like `2024-10-01` as `1 October 2024`.
+
+### Multiple variables
+
+You can use multiple variables in a single template:
+
+```markdown
+### Introducing {{productName}}
+
+{{description}}
+
+**Release Date:** {{releaseDate as "D MMMM YYYY"}}
+```
+
+## Real-world example
+
+Here's a complete product announcement template:
+
+**Model:**
+```concerto
+namespace hello@1.0.0
+
+@template
+concept ProductAnnouncement {
+    o String productName
+    o String description
+    o DateTime releaseDate
+}
+```
+
+**Template:**
+```markdown
+> Product announcement template.
+
+### Introducing {{productName}}
+
+{{description}}
+
+**Release Date:** {{releaseDate as "D MMMM YYYY"}}
+```
+
+This demonstrates how templates can combine multiple variables with rich markdown formatting to create professional-looking documents.
+
+## Template validation
+
+The playground automatically validates your template to ensure:
+
+- All variables exist in the Concerto model
+- Variable names are spelled correctly
+- Data types are compatible with any formatting you've applied
+
+If you reference a variable that doesn't exist in your model, you'll see an error message.
+
+## Next steps
+
+Now that you've created your template, proceed to [Module 3: Data binding](/learning/module-3-data) to generate JSON data that will populate your template variables.
+
+## Key concepts
+
+<AccordionGroup>
+  <Accordion title="What is TemplateMark?">
+    TemplateMark is a markdown-based templating language that allows you to create dynamic documents with variable placeholders. It's part of the Accord Project's markdown-transform library.
+  </Accordion>
+
+  <Accordion title="How do variables work?">
+    Variables in TemplateMark are enclosed in `{{` and `}}`. At runtime, these placeholders are replaced with actual values from your data object. Variable names must match property names in your Concerto model.
+  </Accordion>
+
+  <Accordion title="Can I use markdown formatting?">
+    Yes! TemplateMark supports full markdown syntax, including headings, lists, blockquotes, bold, italic, links, and more. You can combine any markdown with your template variables.
+  </Accordion>
+
+  <Accordion title="How do I format dates and other types?">
+    Use the `as` keyword followed by a format string. For example, `{{date as "YYYY-MM-DD"}}` formats a date. Different data types support different formatting options.
+  </Accordion>
+</AccordionGroup>

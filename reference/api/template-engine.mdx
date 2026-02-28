@@ -1,0 +1,104 @@
+---
+title: TemplateMarkInterpreter API
+description: Generate documents from TemplateMark templates and data using the TemplateMarkInterpreter
+---
+
+The `TemplateMarkInterpreter` class from `@accordproject/template-engine` is the core engine for generating documents from TemplateMark templates and JSON data.
+
+## Installation
+
+```bash
+npm install @accordproject/template-engine @accordproject/concerto-core
+```
+
+## Constructor
+
+Create a new TemplateMarkInterpreter instance with a ModelManager and options.
+
+<ParamField path="modelManager" type="ModelManager" required>
+  A Concerto ModelManager instance containing the data model definitions
+</ParamField>
+
+<ParamField path="options" type="object">
+  Configuration options for the interpreter (optional)
+</ParamField>
+
+### Example
+
+```typescript
+import { ModelManager } from "@accordproject/concerto-core";
+import { TemplateMarkInterpreter } from "@accordproject/template-engine";
+
+const modelManager = new ModelManager({ strict: true });
+modelManager.addCTOModel(model, undefined, true);
+await modelManager.updateExternalModels();
+
+const engine = new TemplateMarkInterpreter(modelManager, {});
+```
+
+## Methods
+
+### generate()
+
+Generates a CiceroMark document from a TemplateMark DOM and data.
+
+<ParamField path="templateMarkDom" type="object" required>
+  The TemplateMark document object model created from a template
+</ParamField>
+
+<ParamField path="data" type="object" required>
+  JSON data object that conforms to the model schema
+</ParamField>
+
+**Returns:** `Promise<CiceroMark>`
+
+The generated CiceroMark document that can be converted to various formats.
+
+### Example Usage
+
+Here's a complete example from the Template Playground showing how to use the TemplateMarkInterpreter:
+
+```typescript
+import { ModelManager } from "@accordproject/concerto-core";
+import { TemplateMarkInterpreter } from "@accordproject/template-engine";
+import { TemplateMarkTransformer } from "@accordproject/markdown-template";
+
+async function rebuild(template: string, model: string, dataString: string): Promise<string> {
+  // Step 1: Set up the model manager
+  const modelManager = new ModelManager({ strict: true });
+  modelManager.addCTOModel(model, undefined, true);
+  await modelManager.updateExternalModels();
+  
+  // Step 2: Create the interpreter
+  const engine = new TemplateMarkInterpreter(modelManager, {});
+  
+  // Step 3: Transform template to TemplateMark DOM
+  const templateMarkTransformer = new TemplateMarkTransformer();
+  const templateMarkDom = templateMarkTransformer.fromMarkdownTemplate(
+    { content: template },
+    modelManager,
+    "contract",
+    { verbose: false }
+  );
+  
+  // Step 4: Parse data
+  const data = JSON.parse(dataString);
+  
+  // Step 5: Generate CiceroMark from template and data
+  const ciceroMark = await engine.generate(templateMarkDom, data);
+  
+  // Step 6: Convert to JSON for further processing
+  const ciceroMarkJson = ciceroMark.toJSON();
+  
+  return ciceroMarkJson;
+}
+```
+
+## Related APIs
+
+- [ModelManager](/reference/api/concerto-core) - Manages Concerto data models
+- [Transform](/reference/api/markdown-transform) - Converts CiceroMark to various formats
+
+## Source Reference
+
+See the implementation in the Template Playground: `src/store/store.ts:79-108`

@@ -1,0 +1,376 @@
+---
+title: Non-Disclosure Agreement Sample
+description: NDA template demonstrating parties, purpose, duration, and date formatting
+---
+
+The Non-Disclosure Agreement (NDA) sample demonstrates a common legal document template. It shows how to work with multiple parties, dates, and term durations in a professional contract format.
+
+## Complete Example
+
+### Model
+
+The model defines the structure of an NDA:
+
+```concerto
+namespace org.accordproject.nda@0.0.2
+
+@template
+concept NDA {
+  o String disclosingParty
+  o String receivingParty
+  o String purpose
+  o DateTime effectiveDate
+  o Integer durationInMonths
+}
+```
+
+**Key Features:**
+- **Party Information**: Both disclosing and receiving parties
+- **Purpose**: Description of why the NDA is needed
+- **DateTime**: Effective date of the agreement
+- **Duration**: Term length specified in months
+
+### Template
+
+The template creates a professional NDA:
+
+```markdown
+DATE: {{effectiveDate as "DD MMMM YYYY"}}
+
+This Non-Disclosure Agreement ("Agreement") is entered into between  
+**{{disclosingParty}}** and **{{receivingParty}}**.
+
+## Purpose
+The purpose of this Agreement is {{purpose}}.
+
+## Term
+This Agreement shall remain in effect for **{{durationInMonths}} months**
+from the effective date.
+
+This Agreement is effective as of the date written above.
+
+Sincerely,  
+**{{disclosingParty}}**
+```
+
+**Key Features:**
+- **Date Formatting**: `{{effectiveDate as "DD MMMM YYYY"}}` for professional date display
+- **Bold Text**: Uses `**text**` markdown for emphasis on important terms
+- **Structured Sections**: Clear headings for different parts of the agreement
+- **Variable Substitution**: Simple placeholders for party names and terms
+
+### Data
+
+The data object provides the agreement details:
+
+```json
+{
+  "$class": "org.accordproject.nda@0.0.2.NDA",
+  "disclosingParty": "Tech Innovators Inc.",
+  "receivingParty": "John Doe",
+  "purpose": "evaluating a potential business collaboration",
+  "effectiveDate": "2025-02-01T00:00:00Z",
+  "durationInMonths": 24
+}
+```
+
+**Key Points:**
+- Fully-qualified class name includes version `@0.0.2`
+- DateTime in ISO 8601 format
+- Integer value for duration
+- String descriptions for parties and purpose
+
+## Generated Output
+
+When rendered, this template produces:
+
+---
+
+DATE: 01 February 2025
+
+This Non-Disclosure Agreement ("Agreement") is entered into between  
+**Tech Innovators Inc.** and **John Doe**.
+
+## Purpose
+The purpose of this Agreement is evaluating a potential business collaboration.
+
+## Term
+This Agreement shall remain in effect for **24 months**
+from the effective date.
+
+This Agreement is effective as of the date written above.
+
+Sincerely,  
+**Tech Innovators Inc.**
+
+---
+
+## Usage
+
+<Accordion title="Complete TypeScript Example">
+
+```typescript
+import { TemplateMarkTransformer } from '@accordproject/markdown-template';
+
+const MODEL = `namespace org.accordproject.nda@0.0.2
+
+@template
+concept NDA {
+  o String disclosingParty
+  o String receivingParty
+  o String purpose
+  o DateTime effectiveDate
+  o Integer durationInMonths
+}`;
+
+const TEMPLATE = `DATE: {{effectiveDate as "DD MMMM YYYY"}}
+
+This Non-Disclosure Agreement ("Agreement") is entered into between  
+**{{disclosingParty}}** and **{{receivingParty}}**.
+
+## Purpose
+The purpose of this Agreement is {{purpose}}.
+
+## Term
+This Agreement shall remain in effect for **{{durationInMonths}} months**
+from the effective date.
+
+This Agreement is effective as of the date written above.
+
+Sincerely,  
+**{{disclosingParty}}**`;
+
+const DATA = {
+  "$class": "org.accordproject.nda@0.0.2.NDA",
+  "disclosingParty": "Tech Innovators Inc.",
+  "receivingParty": "John Doe",
+  "purpose": "evaluating a potential business collaboration",
+  "effectiveDate": "2025-02-01T00:00:00Z",
+  "durationInMonths": 24
+};
+
+const transformer = new TemplateMarkTransformer();
+const result = await transformer.generate({
+  model: MODEL,
+  template: TEMPLATE,
+  data: DATA
+});
+
+console.log(result);
+```
+
+</Accordion>
+
+## Variations
+
+<Accordion title="Shorter Duration">
+
+```json
+{
+  "$class": "org.accordproject.nda@0.0.2.NDA",
+  "disclosingParty": "StartupCo",
+  "receivingParty": "Consultant LLC",
+  "purpose": "discussing a potential product development partnership",
+  "effectiveDate": "2025-03-15T00:00:00Z",
+  "durationInMonths": 12
+}
+```
+
+Creates a 12-month NDA between a startup and consultant.
+
+</Accordion>
+
+<Accordion title="Corporate Parties">
+
+```json
+{
+  "$class": "org.accordproject.nda@0.0.2.NDA",
+  "disclosingParty": "Global Enterprises Inc.",
+  "receivingParty": "Regional Solutions Ltd.",
+  "purpose": "exploring a merger and acquisition opportunity",
+  "effectiveDate": "2025-01-01T00:00:00Z",
+  "durationInMonths": 36
+}
+```
+
+Creates a 3-year NDA between two corporate entities.
+
+</Accordion>
+
+<Accordion title="Different Date Format">
+
+You can modify the template to use different date formats:
+
+```markdown
+DATE: {{effectiveDate as "MMMM D, YYYY"}}
+```
+
+This would produce: "February 1, 2025" instead of "01 February 2025".
+
+</Accordion>
+
+## Key Concepts Demonstrated
+
+### 1. Date Formatting
+
+```markdown
+{{effectiveDate as "DD MMMM YYYY"}}
+```
+
+The date format pattern:
+- `DD` - Day with leading zero (01, 02, ...)
+- `MMMM` - Full month name (January, February, ...)
+- `YYYY` - Four-digit year (2025)
+
+Other common patterns:
+- `"MM/DD/YYYY"` - 02/01/2025
+- `"D MMM YYYY"` - 1 Feb 2025
+- `"YYYY-MM-DD"` - 2025-02-01
+
+See [Date Formatting](/guide/formatting#dates) for all available patterns.
+
+### 2. Simple Variable Substitution
+
+```markdown
+{{disclosingParty}}
+{{receivingParty}}
+{{purpose}}
+{{durationInMonths}}
+```
+
+Direct replacement of placeholders with data values.
+
+### 3. Markdown Formatting
+
+- **Bold**: `**text**` for party names and important terms
+- **Headings**: `##` for section titles
+- **Line breaks**: Two spaces or explicit line breaks
+
+## Extending the Sample
+
+You can extend this NDA template by adding:
+
+### 1. Address Information
+
+```concerto
+concept Address {
+  o String line1
+  o String city
+  o String state
+  o String country
+}
+
+@template
+concept NDA {
+  o String disclosingParty
+  o Address disclosingAddress
+  o String receivingParty
+  o Address receivingAddress
+  // ... other fields
+}
+```
+
+### 2. Signature Section
+
+```markdown
+## Signatures
+
+**Disclosing Party:**
+
+Signature: _________________________  
+Name: {{disclosingParty}}  
+Date: {{effectiveDate as "DD MMMM YYYY"}}
+
+**Receiving Party:**
+
+Signature: _________________________  
+Name: {{receivingParty}}  
+Date: {{effectiveDate as "DD MMMM YYYY"}}
+```
+
+### 3. Permitted Disclosures
+
+```concerto
+enum DisclosureType {
+  o LEGAL_REQUIREMENT
+  o COURT_ORDER
+  o REGULATORY_REQUEST
+}
+
+@template
+concept NDA {
+  // ... existing fields
+  o DisclosureType[] permittedDisclosures optional
+}
+```
+
+### 4. Jurisdiction
+
+```concerto
+@template
+concept NDA {
+  // ... existing fields
+  o String governingLaw
+  o String jurisdiction
+}
+```
+
+Template addition:
+```markdown
+## Governing Law
+This Agreement shall be governed by the laws of {{governingLaw}},
+and disputes shall be resolved in {{jurisdiction}}.
+```
+
+## Real-World Usage Tips
+
+1. **Legal Review**: Always have legal counsel review contract templates
+2. **Versioning**: Use semantic versioning in namespaces (`@0.0.2`)
+3. **Immutability**: Once signed, store the template version used
+4. **Validation**: Validate data against the model before generation
+5. **Audit Trail**: Log when and how documents are generated
+
+## Common Customizations
+
+<Accordion title="Add Confidentiality Definition">
+
+```markdown
+## Definition of Confidential Information
+For the purposes of this Agreement, "Confidential Information" means all
+information disclosed by {{disclosingParty}} to {{receivingParty}},
+whether orally or in writing, that is designated as confidential or that
+reasonably should be understood to be confidential.
+```
+
+</Accordion>
+
+<Accordion title="Add Exclusions">
+
+```markdown
+## Exclusions
+Confidential Information does not include information that:
+- Was already known to {{receivingParty}} prior to disclosure
+- Is or becomes publicly available through no breach of this Agreement
+- Is independently developed by {{receivingParty}}
+- Is rightfully received from a third party without breach
+```
+
+</Accordion>
+
+## Related Samples
+
+<CardGroup cols={2}>
+  <Card title="Employment Offer" icon="file-contract" href="/reference/samples/employment-offer">
+    Another business document with more complex structures
+  </Card>
+  <Card title="Hello World" icon="hand-wave" href="/reference/samples/hello-world">
+    Start with the basics
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+- Learn about [date formatting options](/guide/formatting#dates)
+- Explore [data models in detail](/guide/models)
+- Understand [template validation](/guide/validation)
+- Read about [clauses for reusable sections](/guide/clauses)

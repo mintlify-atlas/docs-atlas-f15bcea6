@@ -1,0 +1,299 @@
+---
+title: 'Conditionals'
+description: 'Conditional logic and optional content in TemplateMark'
+icon: 'code-branch'
+---
+
+## Overview
+
+Conditionals allow you to include or exclude content based on data conditions. TemplateMark supports conditional rendering through the `optional` block and conditional expressions.
+
+## Optional Block
+
+The `{{#optional}}` block renders content only when an optional field has a value:
+
+```markdown
+{{#optional fieldName}}
+  Content to show when field exists
+{{else}}
+  Content to show when field is missing
+{{/optional}}
+```
+
+### Basic Example
+
+<CodeGroup>
+```json Data (with value)
+{
+  "$class": "test@1.0.0.TemplateData",
+  "loyaltyStatus": {
+    "$class": "test@1.0.0.LoyaltyStatus",
+    "level": "Gold"
+  }
+}
+```
+
+```json Data (without value)
+{
+  "$class": "test@1.0.0.TemplateData"
+}
+```
+
+```markdown Template
+{{#optional loyaltyStatus}}
+You have loyalty status.
+{{else}}
+You do not have a loyalty status.
+{{/optional}}
+```
+
+```text Output (with value)
+You have loyalty status.
+```
+
+```text Output (without value)
+You do not have a loyalty status.
+```
+</CodeGroup>
+
+### Accessing Optional Properties
+
+Within the optional block, you can access nested properties:
+
+```markdown
+{{#optional loyaltyStatus}}
+Your loyalty level: {{level}}
+{{else}}
+No loyalty status found.
+{{/optional}}
+```
+
+## Clause with Condition
+
+The `{{#clause}}` block can include a `condition` attribute for conditional rendering:
+
+```markdown
+{{#clause object condition="return expression"}}
+  Content to render if condition is true
+{{/clause}}
+```
+
+### Conditional Clause Example
+
+<CodeGroup>
+```json Data (without address)
+{
+  "$class": "hello@1.0.0.Customer"
+}
+```
+
+```json Data (with address)
+{
+  "$class": "hello@1.0.0.Customer",
+  "address": {
+    "line1": "1 Main Street",
+    "city": "Boston",
+    "state": "MA",
+    "country": "USA"
+  }
+}
+```
+
+```markdown Template
+{{#clause address condition="return address!==undefined"}}
+#### Address
+{{line1}},
+{{city}}, {{state}},
+{{country}}
+{{/clause}}
+
+Done.
+```
+
+```text Output (without address)
+Done.
+```
+
+```text Output (with address)
+#### Address
+1 Main Street,
+Boston, MA,
+USA
+
+Done.
+```
+</CodeGroup>
+
+## Condition Expressions
+
+Condition expressions are JavaScript expressions that return a boolean value.
+
+### Syntax
+
+```markdown
+condition="return EXPRESSION"
+```
+
+<Note>
+The condition must start with `return` and use valid JavaScript syntax.
+</Note>
+
+### Common Condition Patterns
+
+<Tabs>
+  <Tab title="Check Existence">
+    ```markdown
+    condition="return value !== undefined"
+    condition="return object !== null"
+    ```
+  </Tab>
+  <Tab title="Compare Values">
+    ```markdown
+    condition="return amount > 100"
+    condition="return status === 'active'"
+    condition="return count >= 5"
+    ```
+  </Tab>
+  <Tab title="Multiple Conditions">
+    ```markdown
+    condition="return amount > 0 && currency === 'USD'"
+    condition="return status === 'active' || status === 'pending'"
+    ```
+  </Tab>
+  <Tab title="Type Checks">
+    ```markdown
+    condition="return typeof value === 'string'"
+    condition="return Array.isArray(items)"
+    condition="return items.length > 0"
+    ```
+  </Tab>
+</Tabs>
+
+## Combining Conditionals
+
+You can nest conditional blocks to create complex logic:
+
+```markdown
+{{#optional customer}}
+  Customer: {{name}}
+  
+  {{#clause address condition="return address !== undefined"}}
+  Address:
+  {{line1}}, {{city}}
+  {{/clause}}
+{{else}}
+  No customer information available.
+{{/optional}}
+```
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion icon="user" title="Optional customer details">
+    Show additional information only when available:
+    
+    ```markdown
+    ### Customer Profile
+    Name: {{name}}
+    
+    {{#optional phoneNumber}}
+    Phone: {{phoneNumber}}
+    {{/optional}}
+    
+    {{#optional email}}
+    Email: {{email}}
+    {{/optional}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="file-invoice" title="Conditional invoice sections">
+    Include sections based on invoice type:
+    
+    ```markdown
+    {{#clause discountInfo condition="return discount > 0"}}
+    ### Discount Applied
+    You saved {{discount as "0,0.00"}}!
+    {{/clause}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="handshake" title="Contract variations">
+    Show different terms based on contract type:
+    
+    ```markdown
+    {{#clause termsOfService condition="return userType === 'business'"}}
+    ## Business Terms
+    {{businessTerms}}
+    {{/clause}}
+    
+    {{#clause termsOfService condition="return userType === 'individual'"}}
+    ## Individual Terms
+    {{individualTerms}}
+    {{/clause}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="shield" title="Privacy-sensitive data">
+    Only show sensitive information when authorized:
+    
+    ```markdown
+    {{#clause confidentialInfo condition="return authorized === true"}}
+    ## Confidential Information
+    {{sensitiveDetails}}
+    {{/clause}}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<Warning>
+**Condition expressions must be valid JavaScript**
+
+Ensure your conditions use proper JavaScript syntax and always start with `return`:
+
+```markdown
+Good: condition="return amount > 0"
+Bad: condition="amount > 0"
+```
+</Warning>
+
+<Tip>
+**Prefer optional blocks for simple existence checks**
+
+Use `{{#optional}}` instead of clause conditions when only checking if a value exists:
+
+```markdown
+Preferred:
+{{#optional address}}
+  {{line1}}
+{{/optional}}
+
+Also works:
+{{#clause address condition="return address !== undefined"}}
+  {{line1}}
+{{/clause}}
+```
+</Tip>
+
+<Check>
+**Test both conditional branches**
+
+Always test your templates with data that triggers both the true and false conditions to ensure correct behavior.
+</Check>
+
+## Related Topics
+
+<CardGroup cols={2}>
+  <Card title="Variables" icon="brackets-curly" href="/reference/syntax/variables">
+    Learn about variable syntax and formatting
+  </Card>
+  
+  <Card title="Formulas" icon="function" href="/reference/syntax/formulas">
+    Use JavaScript expressions for complex logic
+  </Card>
+  
+  <Card title="Lists" icon="list" href="/reference/syntax/lists">
+    Conditionally render list items
+  </Card>
+</CardGroup>

@@ -1,0 +1,141 @@
+---
+title: "Creating templates"
+description: "Learn how to create templates using TemplateMark and Concerto models"
+---
+
+The Template Playground lets you create legal agreement templates using three core components: a Concerto data model, TemplateMark template, and JSON data.
+
+## Understanding the three editors
+
+The playground consists of three main editors that work together:
+
+- **Concerto Model**: Defines the data structure for your template
+- **TemplateMark**: The template markup that generates your agreement
+- **JSON Data**: Sample data used to populate the template
+
+## Create a template from scratch
+
+<Steps>
+  <Step title="Start with a blank template">
+    Click **Load Sample** in the Concerto Model editor header and select **blank** from the dropdown.
+  </Step>
+  
+  <Step title="Define your data model">
+    Write your Concerto model in the top editor. The model defines the structure of data your template will use.
+
+    ```concerto
+    namespace org.acme.agreement@1.0.0
+
+    import org.accordproject.contract@1.0.0.Contract from https://models.accordproject.org/accordproject/contract.cto
+
+    @template
+    concept TemplateModel extends Contract {
+      o String seller
+      o String buyer
+      o Double amount
+    }
+    ```
+  </Step>
+
+  <Step title="Write your template">
+    In the TemplateMark editor, use the data fields defined in your model. Access properties using double curly braces:
+
+    ```templatemark
+    # Purchase Agreement
+
+    This agreement is between {{seller}} (the "Seller") and {{buyer}} (the "Buyer").
+
+    The purchase amount is ${{amount}}.
+    ```
+  </Step>
+
+  <Step title="Add sample data">
+    In the JSON Data editor, provide values that match your Concerto model:
+
+    ```json
+    {
+      "$class": "org.acme.agreement@1.0.0.TemplateModel",
+      "seller": "ABC Company",
+      "buyer": "John Smith",
+      "amount": 5000
+    }
+    ```
+  </Step>
+
+  <Step title="Preview the result">
+    The Preview panel on the right automatically updates to show the merged result of your template and data.
+  </Step>
+</Steps>
+
+## Use formatting toolbar
+
+The TemplateMark editor includes a toolbar with formatting shortcuts:
+
+- **Heading buttons**: Insert H1, H2, or H3 headings
+- **Bold**: Make text bold
+- **Italic**: Italicize text
+- **Lists**: Create ordered or unordered lists
+- **Link**: Insert a hyperlink
+- **Image**: Embed an image
+
+## Collapse and expand editors
+
+You can collapse editors you're not actively using to focus on specific parts:
+
+- Click the **chevron icon** (▼ or ►) in the Concerto Model or JSON Data editor headers
+- Collapsed editors show only their header
+- Click the chevron again to expand
+
+<Note>
+The TemplateMark editor cannot be collapsed as it's the primary editing area.
+</Note>
+
+## Format JSON data
+
+If your JSON data becomes messy or unformatted:
+
+1. Locate the **format icon** in the JSON Data editor header
+2. Click it to automatically format and indent your JSON
+
+## Working with complex data
+
+For nested data structures, use clause tags to create scope:
+
+```templatemark
+{{#clause address}}
+  Street: {{street}}
+  City: {{city}}
+{{/clause}}
+```
+
+For lists, use `olist` (ordered) or `ulist` (unordered):
+
+```templatemark
+{{#olist items}}
+  Item: {{name}} - Price: ${{price}}
+{{/olist}}
+```
+
+## View errors and problems
+
+If there are issues with your template, model, or data:
+
+1. The **Problem Panel** appears at the bottom of the editors
+2. Review error messages with line numbers
+3. Click an error to jump to the relevant location
+
+<Tip>
+The playground validates your template in real-time. If the preview doesn't update, check the Problem Panel for errors.
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Using samples" icon="folder-open" href="/guides/using-samples">
+    Explore pre-built sample templates
+  </Card>
+  
+  <Card title="AI assistant" icon="robot" href="/guides/ai-assistant">
+    Use AI to help create templates
+  </Card>
+</CardGroup>

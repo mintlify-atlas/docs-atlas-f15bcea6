@@ -1,0 +1,422 @@
+---
+title: 'Lists'
+description: 'List iteration and rendering in TemplateMark'
+icon: 'list'
+---
+
+## Overview
+
+TemplateMark provides powerful list iteration capabilities to render arrays of data. You can create both ordered and unordered lists, as well as format list items with localization support.
+
+## List Types
+
+### Unordered Lists
+
+Create bulleted lists using the `{{#ulist}}` block:
+
+```markdown
+{{#ulist arrayName}}
+- {{this}}
+{{/ulist}}
+```
+
+### Ordered Lists
+
+Create numbered lists using the `{{#olist}}` block:
+
+```markdown
+{{#olist arrayName}}
+- {{this}}
+{{/olist}}
+```
+
+## Basic List Example
+
+<CodeGroup>
+```json Data
+{
+  "$class": "test@1.0.0.Person",
+  "middleNames": ["Tenzin", "Isaac", "Mia"]
+}
+```
+
+```markdown Template
+## Lists
+
+Ordered:
+{{#olist middleNames}}
+- {{this}}
+{{/olist}}
+
+Unordered:
+{{#ulist middleNames}}
+- {{this}}
+{{/ulist}}
+```
+
+```text Output
+## Lists
+
+Ordered:
+1. Tenzin
+2. Isaac
+3. Mia
+
+Unordered:
+- Tenzin
+- Isaac
+- Mia
+```
+</CodeGroup>
+
+## The `this` Keyword
+
+Within a list block, `{{this}}` refers to the current item being iterated:
+
+```markdown
+{{#ulist items}}
+- {{this}}
+{{/ulist}}
+```
+
+<Note>
+For simple arrays (strings, numbers), use `{{this}}` to access the value. For arrays of objects, access properties directly.
+</Note>
+
+## Iterating Object Arrays
+
+When iterating over arrays of objects, access object properties directly:
+
+### Example with Object Array
+
+<CodeGroup>
+```json Data
+{
+  "$class": "store@1.0.0.Order",
+  "items": [
+    {
+      "name": "Widget",
+      "quantity": 2,
+      "price": 29.99
+    },
+    {
+      "name": "Gadget",
+      "quantity": 1,
+      "price": 49.99
+    }
+  ]
+}
+```
+
+```markdown Template
+## Order Items
+
+{{#ulist items}}
+- **{{name}}**: {{quantity}} × {{price as "0,0.00"}}
+{{/ulist}}
+```
+
+```text Output
+## Order Items
+
+- **Widget**: 2 × 29.99
+- **Gadget**: 1 × 49.99
+```
+</CodeGroup>
+
+## Join Lists
+
+The `{{#join}}` block formats arrays into natural language lists with localization support:
+
+```markdown
+{{#join arrayName locale="LOCALE" style="STYLE" type="TYPE"}}{{/join}}
+```
+
+### Join Parameters
+
+<ParamField path="locale" type="string" default="en">
+  Language locale (e.g., `en`, `en-GB`, `fr`, `de`)
+</ParamField>
+
+<ParamField path="style" type="string" default="long">
+  List style: `long`, `short`, or `narrow`
+</ParamField>
+
+<ParamField path="type" type="string" default="conjunction">
+  List type: `conjunction` (and), `disjunction` (or), or `unit`
+</ParamField>
+
+### Join Examples
+
+<CodeGroup>
+```json Data
+{
+  "$class": "com.acme.insurance.auto@1.0.0.Insurance",
+  "items": ["CAR", "ACCESSORIES", "SPARE_PARTS"]
+}
+```
+
+```markdown Template (Styles)
+- Narrow: {{#join items locale="en" style="narrow"}}{{/join}}
+- Long: {{#join items locale="en" style="long"}}{{/join}}
+- Short: {{#join items locale="en" style="short"}}{{/join}}
+```
+
+```text Output (Styles)
+- Narrow: CAR, ACCESSORIES, SPARE_PARTS
+- Long: CAR, ACCESSORIES, and SPARE_PARTS
+- Short: CAR, ACCESSORIES, & SPARE_PARTS
+```
+
+```markdown Template (Types)
+- Conjunction: {{#join items locale="en" type="conjunction"}}{{/join}}
+- Disjunction: {{#join items locale="en" type="disjunction"}}{{/join}}
+- Unit: {{#join items locale="en" type="unit"}}{{/join}}
+```
+
+```text Output (Types)
+- Conjunction: CAR, ACCESSORIES, and SPARE_PARTS
+- Disjunction: CAR, ACCESSORIES, or SPARE_PARTS
+- Unit: CAR, ACCESSORIES, SPARE_PARTS
+```
+</CodeGroup>
+
+## Localized Lists
+
+Join supports multiple locales for international documents:
+
+<Tabs>
+  <Tab title="English (US)">
+    ```markdown
+    {{#join items locale="en" style="long"}}{{/join}}
+    ```
+    Output: `CAR, ACCESSORIES, and SPARE_PARTS`
+  </Tab>
+  <Tab title="English (UK)">
+    ```markdown
+    {{#join items locale="en-GB" style="long"}}{{/join}}
+    ```
+    Output: `CAR, ACCESSORIES and SPARE_PARTS`
+  </Tab>
+  <Tab title="French">
+    ```markdown
+    {{#join items locale="fr" style="long"}}{{/join}}
+    ```
+    Output: `CAR, ACCESSORIES et SPARE_PARTS`
+  </Tab>
+  <Tab title="German">
+    ```markdown
+    {{#join items locale="de" style="long"}}{{/join}}
+    ```
+    Output: `CAR, ACCESSORIES und SPARE_PARTS`
+  </Tab>
+</Tabs>
+
+## Complex List Patterns
+
+### Nested Lists
+
+Create nested list structures:
+
+```markdown
+{{#ulist categories}}
+- **{{name}}**
+  {{#ulist items}}
+  - {{this}}
+  {{/ulist}}
+{{/ulist}}
+```
+
+### Lists with Formulas
+
+Combine lists with formula expressions:
+
+```markdown
+{{#olist products}}
+- {{name}}: {{% return (price * quantity).toFixed(2) %}}} {{currency}}
+{{/olist}}
+```
+
+### Conditional List Items
+
+Use formulas for conditional rendering:
+
+```markdown
+{{#ulist items}}
+- {{name}} {{% return inStock ? '✓' : '✗' %}}
+{{/ulist}}
+```
+
+## Empty Lists
+
+Handle empty arrays gracefully:
+
+```markdown
+{{#clause items condition="return items && items.length > 0"}}
+### Items
+{{#ulist items}}
+- {{this}}
+{{/ulist}}
+{{else}}
+No items available.
+{{/clause}}
+```
+
+<Note>
+List blocks render nothing if the array is empty. Use conditional clauses to show fallback content.
+</Note>
+
+## Advanced Examples
+
+### Shopping Cart
+
+<CodeGroup>
+```json Data
+{
+  "$class": "shop@1.0.0.Cart",
+  "items": [
+    {"name": "Laptop", "quantity": 1, "price": 999.99},
+    {"name": "Mouse", "quantity": 2, "price": 24.99},
+    {"name": "Keyboard", "quantity": 1, "price": 79.99}
+  ],
+  "currency": "USD"
+}
+```
+
+```markdown Template
+### Shopping Cart
+
+{{#olist items}}
+- **{{name}}**
+  - Quantity: {{quantity}}
+  - Unit Price: {{price as "0,0.00"}} {{../currency}}
+  - Subtotal: {{% return (price * quantity).toFixed(2) %}} {{../currency}}
+{{/olist}}
+```
+</CodeGroup>
+
+### Attendee List
+
+<CodeGroup>
+```json Data
+{
+  "$class": "event@1.0.0.Event",
+  "attendees": [
+    {"name": "Alice Johnson", "company": "Tech Corp"},
+    {"name": "Bob Smith", "company": "Innovation Inc"},
+    {"name": "Carol White", "company": "Future Labs"}
+  ]
+}
+```
+
+```markdown Template
+### Confirmed Attendees
+
+{{#olist attendees}}
+- {{name}} ({{company}})
+{{/olist}}
+
+Total: {{% return attendees.length %}}} attendees
+```
+</CodeGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion icon="list-check" title="Choose the right list type">
+    Use ordered lists for sequences, unordered for collections:
+    
+    ```markdown
+    Steps (ordered):
+    {{#olist steps}}
+    - {{this}}
+    {{/olist}}
+    
+    Features (unordered):
+    {{#ulist features}}
+    - {{this}}
+    {{/ulist}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="language" title="Use join for natural language">
+    For prose, prefer join over lists:
+    
+    ```markdown
+    Better: Available in {{#join sizes locale="en"}}{{/join}}
+    Output: Available in small, medium, and large
+    
+    Avoid:
+    Available in:
+    {{#ulist sizes}}
+    - {{this}}
+    {{/ulist}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="check-double" title="Validate array existence">
+    Check arrays exist before iteration:
+    
+    ```markdown
+    {{#clause items condition="return items && items.length > 0"}}
+    {{#ulist items}}
+    - {{this}}
+    {{/ulist}}
+    {{/clause}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="globe" title="Specify locale for join">
+    Always set locale for consistent formatting:
+    
+    ```markdown
+    {{#join items locale="en-GB" style="long"}}{{/join}}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+**Accessing parent context**
+
+Use `../` to access variables from the parent context within a list:
+
+```markdown
+{{#ulist items}}
+- {{name}}: {{price}} {{../currency}}
+{{/ulist}}
+```
+</Tip>
+
+<Warning>
+**List block syntax**
+
+List blocks require markdown list syntax (`-` or `*`) even though they generate numbered or bulleted lists:
+
+```markdown
+Correct:
+{{#olist items}}
+- {{this}}
+{{/olist}}
+
+Incorrect:
+{{#olist items}}
+{{this}}
+{{/olist}}
+```
+</Warning>
+
+## Related Topics
+
+<CardGroup cols={2}>
+  <Card title="Variables" icon="brackets-curly" href="/reference/syntax/variables">
+    Access and format variables within lists
+  </Card>
+  
+  <Card title="Conditionals" icon="code-branch" href="/reference/syntax/conditionals">
+    Add conditional logic to list rendering
+  </Card>
+  
+  <Card title="Formulas" icon="function" href="/reference/syntax/formulas">
+    Use formulas for calculated list values
+  </Card>
+</CardGroup>

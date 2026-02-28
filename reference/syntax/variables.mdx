@@ -1,0 +1,265 @@
+---
+title: 'Variables'
+description: 'Variable syntax and usage in TemplateMark'
+icon: 'brackets-curly'
+---
+
+## Basic Variable Syntax
+
+Variables in TemplateMark are enclosed in double curly braces and reference properties from your data model.
+
+```markdown
+{{variableName}}
+```
+
+### Simple Variables
+
+Access top-level properties directly by name:
+
+```markdown
+Hello {{name}}!
+```
+
+**Example with data:**
+
+<CodeGroup>
+```json Data
+{
+  "$class": "hello@1.0.0.HelloWorld",
+  "name": "John Doe"
+}
+```
+
+```markdown Template
+Hello {{name}}!
+```
+
+```text Output
+Hello John Doe!
+```
+</CodeGroup>
+
+### Nested Object Properties
+
+Access nested properties using dot notation:
+
+```markdown
+{{#clause address}}
+{{line1}},
+{{city}}, {{state}},
+{{country}}
+{{/clause}}
+```
+
+**Example with nested data:**
+
+<CodeGroup>
+```json Data
+{
+  "$class": "hello@1.0.0.Customer",
+  "address": {
+    "line1": "1 Main Street",
+    "city": "Boston",
+    "state": "MA",
+    "country": "USA"
+  }
+}
+```
+
+```markdown Template
+{{#clause address}}
+#### Address
+{{line1}},
+{{city}}, {{state}},
+{{country}}
+{{/clause}}
+```
+
+```markdown Output
+#### Address
+1 Main Street,
+Boston, MA,
+USA
+```
+</CodeGroup>
+
+## Date Formatting
+
+Format date and time values using the `as` keyword with format strings:
+
+```markdown
+{{dateVariable as "FORMAT_STRING"}}
+```
+
+### Common Date Formats
+
+<Tabs>
+  <Tab title="Full Date">
+    ```markdown
+    {{effectiveDate as "DD MMMM YYYY"}}
+    ```
+    Output: `01 February 2025`
+  </Tab>
+  <Tab title="Short Date">
+    ```markdown
+    {{date as "D MMMM YYYY"}}
+    ```
+    Output: `15 June 2024`
+  </Tab>
+  <Tab title="ISO Format">
+    ```markdown
+    {{date as "YYYY-MM-DD"}}
+    ```
+    Output: `2024-06-15`
+  </Tab>
+</Tabs>
+
+**Example in context:**
+
+<CodeGroup>
+```json Data
+{
+  "$class": "org.accordproject.nda@0.0.2.NDA",
+  "effectiveDate": "2025-02-01T00:00:00Z",
+  "disclosingParty": "Tech Innovators Inc."
+}
+```
+
+```markdown Template
+DATE: {{effectiveDate as "DD MMMM YYYY"}}
+
+This Agreement is entered into by **{{disclosingParty}}**.
+```
+
+```text Output
+DATE: 01 February 2025
+
+This Agreement is entered into by **Tech Innovators Inc.**.
+```
+</CodeGroup>
+
+## Number Formatting
+
+Format numeric values using the `as` keyword with numeral.js format patterns:
+
+```markdown
+{{numberVariable as "FORMAT_PATTERN"}}
+```
+
+### Common Number Formats
+
+<Tabs>
+  <Tab title="Decimal">
+    ```markdown
+    {{amount as "0,0.00"}}
+    ```
+    Output: `1,250.00`
+  </Tab>
+  <Tab title="Integer">
+    ```markdown
+    {{count as "0,0"}}
+    ```
+    Output: `1,250`
+  </Tab>
+  <Tab title="Percentage">
+    ```markdown
+    {{rate as "0.00%"}}
+    ```
+    Output: `15.50%`
+  </Tab>
+</Tabs>
+
+**Example in context:**
+
+<CodeGroup>
+```json Data
+{
+  "$class": "payment@1.0.0.PaymentReceipt",
+  "amount": 250.00,
+  "currency": "USD",
+  "vatPercent": 10
+}
+```
+
+```markdown Template
+- Amount: {{amount as "0,0.00"}} {{currency}}
+- VAT: {{vatPercent}}%
+```
+
+```text Output
+- Amount: 250.00 USD
+- VAT: 10%
+```
+</CodeGroup>
+
+## Special Variables
+
+### The `now` Variable
+
+TemplateMark provides an implicit `now` variable representing the current date and time:
+
+```markdown
+Today is {{% return now.toISOString() %}}.
+```
+
+<Note>
+The `now` variable is only accessible within formula expressions (between `{{% %}}`).
+</Note>
+
+### The `this` Variable
+
+Within list iterations and clause blocks, use `this` to reference the current item:
+
+```markdown
+{{#ulist items}}
+- {{this}}
+{{/ulist}}
+```
+
+See the [Lists documentation](/reference/syntax/lists) for more details.
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion icon="check" title="Use descriptive variable names">
+    Choose variable names that clearly indicate their purpose:
+    
+    ```markdown
+    Good: {{customerName}}, {{invoiceDate}}
+    Avoid: {{x}}, {{data1}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="calendar" title="Always format dates">
+    Raw date values are not human-readable. Always use the `as` formatter:
+    
+    ```markdown
+    Good: {{eventDate as "D MMMM YYYY"}}
+    Avoid: {{eventDate}}
+    ```
+  </Accordion>
+  
+  <Accordion icon="dollar-sign" title="Format currency consistently">
+    Use consistent number formatting for currency values:
+    
+    ```markdown
+    {{amount as "0,0.00"}} {{currency}}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Topics
+
+<CardGroup cols={2}>
+  <Card title="Conditionals" icon="code-branch" href="/reference/syntax/conditionals">
+    Learn about conditional rendering based on variable values
+  </Card>
+  
+  <Card title="Formulas" icon="function" href="/reference/syntax/formulas">
+    Perform calculations and transformations on variables
+  </Card>
+  
+  <Card title="Lists" icon="list" href="/reference/syntax/lists">
+    Iterate over array variables
+  </Card>
+</CardGroup>
