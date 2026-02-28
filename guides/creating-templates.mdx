@@ -40,7 +40,7 @@ The playground consists of three main editors that work together:
   <Step title="Write your template">
     In the TemplateMark editor, use the data fields defined in your model. Access properties using double curly braces:
 
-    ```templatemark
+    ```markdown
     # Purchase Agreement
 
     This agreement is between {{seller}} (the "Seller") and {{buyer}} (the "Buyer").
@@ -101,7 +101,7 @@ If your JSON data becomes messy or unformatted:
 
 For nested data structures, use clause tags to create scope:
 
-```templatemark
+```markdown
 {{#clause address}}
   Street: {{street}}
   City: {{city}}
@@ -110,7 +110,7 @@ For nested data structures, use clause tags to create scope:
 
 For lists, use `olist` (ordered) or `ulist` (unordered):
 
-```templatemark
+```markdown
 {{#olist items}}
   Item: {{name}} - Price: ${{price}}
 {{/olist}}

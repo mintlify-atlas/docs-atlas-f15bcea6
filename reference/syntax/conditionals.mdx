@@ -252,7 +252,7 @@ You can nest conditional blocks to create complex logic:
 
 Ensure your conditions use proper JavaScript syntax and always start with `return`:
 
-```markdown
+```text
 Good: condition="return amount > 0"
 Bad: condition="amount > 0"
 ```
@@ -263,7 +263,7 @@ Bad: condition="amount > 0"
 
 Use `{{#optional}}` instead of clause conditions when only checking if a value exists:
 
-```markdown
+```templatemark
 Preferred:
 {{#optional address}}
   {{line1}}

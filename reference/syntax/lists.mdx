@@ -380,7 +380,7 @@ Total: {{% return attendees.length %}}} attendees
 
 Use `../` to access variables from the parent context within a list:
 
-```markdown
+```templatemark
 {{#ulist items}}
 - {{name}}: {{price}} {{../currency}}
 {{/ulist}}
@@ -392,7 +392,7 @@ Use `../` to access variables from the parent context within a list:
 
 List blocks require markdown list syntax (`-` or `*`) even though they generate numbered or bulleted lists:
 
-```markdown
+```templatemark
 Correct:
 {{#olist items}}
 - {{this}}
