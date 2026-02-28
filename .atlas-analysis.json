@@ -1,0 +1,128 @@
+{
+  "projectType": "frontend",
+  "projectName": "Accord Project Template Playground",
+  "projectDescription": "Web-based platform for creating, testing, and sharing TemplateMark templates with live preview and AI assistance",
+  "theme": "palm",
+  "primaryColor": "#19C6C8",
+  "lightColor": "#4DD4D6",
+  "darkColor": "#0FA5A7",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/templatemark",
+              "concepts/concerto-models",
+              "concepts/data-binding",
+              "concepts/template-engine"
+            ]
+          },
+          {
+            "group": "User Guide",
+            "pages": [
+              "guides/creating-templates",
+              "guides/using-samples",
+              "guides/sharing-templates",
+              "guides/ai-assistant",
+              "guides/exporting-documents"
+            ]
+          },
+          {
+            "group": "Learning Pathway",
+            "pages": [
+              "learning/overview",
+              "learning/module-1-models",
+              "learning/module-2-templates",
+              "learning/module-3-data"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "advanced/custom-logic",
+              "advanced/markdown-transform",
+              "advanced/error-handling"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "TemplateMark Syntax",
+            "pages": [
+              "reference/syntax/variables",
+              "reference/syntax/conditionals",
+              "reference/syntax/formulas",
+              "reference/syntax/lists"
+            ]
+          },
+          {
+            "group": "Sample Templates",
+            "pages": [
+              "reference/samples/overview",
+              "reference/samples/hello-world",
+              "reference/samples/employment-offer",
+              "reference/samples/nda"
+            ]
+          },
+          {
+            "group": "API Integration",
+            "pages": [
+              "reference/api/template-engine",
+              "reference/api/concerto-core",
+              "reference/api/markdown-transform"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Contributing",
+        "groups": [
+          {
+            "group": "Development",
+            "pages": [
+              "contributing/setup",
+              "contributing/architecture",
+              "contributing/testing",
+              "contributing/guidelines"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Live template editing with Monaco editor and syntax highlighting",
+    "Real-time preview of rendered agreements in HTML/PDF format",
+    "Built-in sample templates (Hello World, NDA, Employment Offer, etc.)",
+    "AI-powered assistant for template creation and debugging",
+    "Shareable template links with compressed state",
+    "Concerto model validation and error reporting",
+    "Guided learning pathway with interactive tutorials",
+    "Dark/light theme support",
+    "Multi-panel resizable workspace"
+  ],
+  "publicApiSurface": [
+    "TemplateMarkInterpreter - Template engine for processing TemplateMark",
+    "ModelManager - Concerto model management and validation",
+    "TemplateMarkTransformer - Convert markdown to TemplateMark DOM",
+    "transform - Convert TemplateMark output to HTML/PDF",
+    "Sample templates - Pre-built templates (helloworld, nda, employmentOffer, etc.)",
+    "useAppStore - Zustand store for application state",
+    "Share functionality - Generate compressed shareable links",
+    "AI Assistant - Multi-provider LLM integration (OpenAI, Claude, Gemini, Mistral)",
+    "Editors - MarkdownEditor, ConcertoEditor, JSONEditor components"
+  ]
+}
